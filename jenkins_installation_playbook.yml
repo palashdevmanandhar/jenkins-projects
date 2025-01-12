@@ -6,9 +6,10 @@
     - jenkins_download_url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
     - jenkins_repo_destination: /etc/yum.repos.d/jenkins.repo
     - jenkins_key_url: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+    - jenkins_admin_pass: /var/lib/jenkins/secrets/initialAdminPassword
   tasks:
     - name: Install java jdk to run jenkins and wget to download jenkins binary
-      package:
+      dnf:
         name: 
           - java-17-openjdk
           - wget
@@ -26,9 +27,11 @@
         key: "{{ jenkins_key_url }}"
       become: yes
 
-    - name: Install jenkins
+    - name: Install jenkins and git
       yum:
-        name: jenkins
+        name: 
+          - jenkins
+          - git
         state: present
       notify : 
         - jenkins-installed  
@@ -40,4 +43,14 @@
         systemctl enable jenkins
         systemctl start jenkins  
       listen: "jenkins-installed"
+
+    - name: Get jenkins admin password
+      command:
+        cmd: "cat {{ jenkins_admin_pass }}"
+      register: admin_password
+
+    - name: Display file content
+      debug:
+        msg: "{{ admin_password.stdout }}"   
+
 
