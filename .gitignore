@@ -33,6 +33,7 @@ crash.log
 
 # Ignore Terraform lock file (optional)
 terraform/.terraform.lock.hcl
+terraform/.terraform
 
 # Ignore secret keys
 /keys

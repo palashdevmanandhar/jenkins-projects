@@ -5,6 +5,13 @@ variable "region" {
   description = "default region for the project"
 }
 
+variable "availability_zone" {
+  type        = string
+  default     = "us-east-1a"
+  description = "default az"
+}
+
+
 variable "public_key_path" {
   description = "Path to the SSH public key file"
   type        = string
@@ -17,13 +24,13 @@ variable "deafult_vpc_id" {
   description = "id of default vpc"
 }
 
-variable "aws_ami_id"{
+variable "aws_ami_id" {
   type        = string
   default     = "ami-09115b7bffbe3c5e4"
   description = "id of amazon linux in us-east-1"
 }
 
-variable project_name {
+variable "project_name" {
   type        = string
   default     = "react-jenkins-project"
   description = "description"
