@@ -65,6 +65,7 @@ resource "aws_instance" "staging_instance" {
   tags = {
     Name    = "staging-server"
     project = var.project_name
+    env = "dev"
   }
 }
 
@@ -90,5 +91,6 @@ resource "aws_instance" "production_instance" {
   tags = {
     Name    = "production-server"
     project = var.project_name
+    env = "prod"
   }
 }
