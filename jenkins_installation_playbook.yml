@@ -11,7 +11,7 @@
     - name: Install java jdk to run jenkins and wget to download jenkins binary
       dnf:
         name: 
-          - java-17-openjdk
+          - java-17-amazon-corretto-devel
           - wget
         state: present
 
@@ -28,7 +28,7 @@
       become: yes
 
     - name: Install jenkins and git
-      yum:
+      dnf:
         name: 
           - jenkins
           - git
