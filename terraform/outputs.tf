@@ -7,3 +7,8 @@ output "ec2_public_ip_prod" {
   value       = aws_instance.production_instance.public_ip
   description = "The public IP of the staging EC2 instance"
 }
+
+output "ec2_jenkins" {
+  value       = aws_instance.jenkins_instance.public_ip
+  description = "The public IP of the jenkins EC2 instance"
+}

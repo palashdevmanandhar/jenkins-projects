@@ -28,6 +28,14 @@ resource "aws_security_group" "react_jenkins_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "Allow HTTP from all"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # Egress Rules
   egress {
     description = "Allow all egress"
@@ -65,7 +73,7 @@ resource "aws_instance" "staging_instance" {
   tags = {
     Name    = "staging-server"
     project = var.project_name
-    env = "dev"
+    env     = "dev"
   }
 }
 
@@ -91,6 +99,31 @@ resource "aws_instance" "production_instance" {
   tags = {
     Name    = "production-server"
     project = var.project_name
-    env = "prod"
+    env     = "prod"
+  }
+}
+
+resource "aws_instance" "jenkins_instance" {
+  ami                         = var.aws_ami_id
+  instance_type               = "t2.micro"
+  associate_public_ip_address = true
+  subnet_id                   = aws_subnet.public_subnet.id
+
+  # Security Group (optional, add an existing SG or use Terraform to create one)
+  vpc_security_group_ids = [aws_security_group.react_jenkins_sg.id]
+
+  # Key Pair for SSH Access
+  key_name = aws_key_pair.ec2_key_pair.key_name
+
+  # Add a basic block device (root volume)
+  root_block_device {
+    volume_size = 8 # 8GB root volume
+    volume_type = "gp3"
+  }
+
+  # Add Tags
+  tags = {
+    Name    = "jenkins-server"
+    project = var.project_name
   }
 }
