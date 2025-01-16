@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Making slight change to react app after adding webhook
+          Making slight change to react app after adding webhook again
         </a>
       </header>
     </div>
