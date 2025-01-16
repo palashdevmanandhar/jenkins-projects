@@ -6,7 +6,6 @@ pipeline {
         IMAGE_NAME = "react-app"
         CONTAINER_PORT = "80"
         HOST_PORT = "80"
-        // Define SSH credentials
         SSH_CREDS = credentials('jenkins-ssh-key')
     }
     stages {
