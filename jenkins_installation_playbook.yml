@@ -27,11 +27,12 @@
         key: "{{ jenkins_key_url }}"
       become: yes
 
-    - name: Install jenkins and git
+    - name: Install jenkins,docker and git
       dnf:
         name: 
           - jenkins
           - git
+          - docker
         state: present
       notify : 
         - jenkins-installed  
