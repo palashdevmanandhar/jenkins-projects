@@ -105,7 +105,7 @@ resource "aws_instance" "production_instance" {
 
 resource "aws_instance" "jenkins_instance" {
   ami                         = var.aws_ami_id
-  instance_type               = "t2.micro"
+  instance_type               = "t2.medium"
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.public_subnet.id
 
@@ -117,7 +117,7 @@ resource "aws_instance" "jenkins_instance" {
 
   # Add a basic block device (root volume)
   root_block_device {
-    volume_size = 8 # 8GB root volume
+    volume_size = 20 # 8GB root volume
     volume_type = "gp3"
   }
 
