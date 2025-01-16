@@ -35,19 +35,18 @@ pipeline {
         stage('Deploy Development') {
             steps {
                 script {
-                    // Using sshagent for secure SSH connections
                     sshagent(['jenkins-ssh-key']) {
-                        // Stop and remove existing container if it exists
                         sh """
                             ssh -o StrictHostKeyChecking=no ec2-user@${env.SERVER_DEV} '
-                                if docker ps -a | grep -q ${env.IMAGE_NAME}; then
-                                    docker stop \$(docker ps -a | grep ${env.IMAGE_NAME} | awk "{print \$1}")
-                                    docker rm \$(docker ps -a | grep ${env.IMAGE_NAME} | awk "{print \$1}")
+                                # Get container IDs for the specific image name
+                                CONTAINER_IDS=\$(docker ps -a --filter name=${env.IMAGE_NAME} --format "{{.ID}}")
+                                if [ ! -z "\$CONTAINER_IDS" ]; then
+                                    docker stop \$CONTAINER_IDS
+                                    docker rm \$CONTAINER_IDS
                                 fi
                             '
                         """
                         
-                        // Transfer and deploy new container
                         sh """
                             docker save ${env.IMAGE_TAG} > ${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar
                             scp ${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar ec2-user@${env.SERVER_DEV}:/tmp/
@@ -74,9 +73,10 @@ pipeline {
                         // Stop and remove existing container if it exists
                         sh """
                             ssh -o StrictHostKeyChecking=no ec2-user@${env.SERVER_PROD} '
-                                if docker ps -a | grep -q ${env.IMAGE_NAME}; then
-                                    docker stop \$(docker ps -a | grep ${env.IMAGE_NAME} | awk "{print \$1}")
-                                    docker rm \$(docker ps -a | grep ${env.IMAGE_NAME} | awk "{print \$1}")
+                                CONTAINER_IDS=\$(docker ps -a --filter name=${env.IMAGE_NAME} --format "{{.ID}}")
+                                if [ ! -z "\$CONTAINER_IDS" ]; then
+                                    docker stop \$CONTAINER_IDS
+                                    docker rm \$CONTAINER_IDS
                                 fi
                             '
                         """
