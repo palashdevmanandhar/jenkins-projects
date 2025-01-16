@@ -44,7 +44,7 @@
 
     - name: Add jenkins_user to Docker group
       user:
-        name: jenkins_user
+        name: jenkins
         groups: docker
         append: yes       
 
