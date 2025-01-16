@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        SERVER_DEV = "ec2-user@3.235.129.2"
-        SERVER_PROD = "ec2-user@18.213.245.248"
+        SERVER_DEV = "ec2-user@54.83.74.235"
+        SERVER_PROD = "ec2-user@34.228.82.30"
         IMAGE_NAME = "react-app"
         CONTAINER_PORT = "80"
         HOST_PORT =  "80"
