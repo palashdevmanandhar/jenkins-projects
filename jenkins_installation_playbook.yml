@@ -1,6 +1,6 @@
 --- 
 - hosts: jenkins_servers
-  gather_facts: no  
+  gather_facts: yes  
   become: yes
   vars:
     - jenkins_download_url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
@@ -37,21 +37,37 @@
       notify : 
         - jenkins-installed  
 
+    - name: Ensure Docker group exists
+      group:
+        name: docker
+        state: present
+
+    - name: Add jenkins_user to Docker group
+      user:
+        name: jenkins_user
+        groups: docker
+        append: yes       
+
   handlers:
     - name: Reload and restart systemd services
-      ansible.builtin.shell: |
-        systemctl daemon-reload
-        systemctl enable jenkins
-        systemctl start jenkins  
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      with_items:
+        - jenkins
+        - docker
       listen: "jenkins-installed"
 
     - name: Get jenkins admin password
       command:
         cmd: "cat {{ jenkins_admin_pass }}"
       register: admin_password
+      listen: "jenkins-installed"
 
     - name: Display file content
       debug:
-        msg: "{{ admin_password.stdout }}"   
+        var: admin_password.stdout  
+      listen: "jenkins-installed"  
 
 
