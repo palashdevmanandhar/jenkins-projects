@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          REact app
+          Test to see dynamic ips of webservers
         </a>
       </header>
     </div>
