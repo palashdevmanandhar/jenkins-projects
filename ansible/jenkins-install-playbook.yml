@@ -1,0 +1,72 @@
+--- 
+- hosts: jenkins_servers
+  gather_facts: yes  
+  become: yes
+  vars:
+    - jenkins_download_url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+    - jenkins_repo_destination: /etc/yum.repos.d/jenkins.repo
+    - jenkins_key_url: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+    - jenkins_admin_pass: /var/lib/jenkins/secrets/initialAdminPassword
+  tasks:
+    - name: Install java jdk to run jenkins and wget to download jenkins binary
+      dnf:
+        name: 
+          - java-17-amazon-corretto-devel
+          - wget
+        state: present
+
+    - name: Download jenkins repository file
+      get_url:
+        url: "{{ jenkins_download_url }}"
+        dest: "{{ jenkins_repo_destination }}"
+        mode: '0644'
+
+    - name: Import Jenkins GPG key
+      ansible.builtin.rpm_key:
+        state: present
+        key: "{{ jenkins_key_url }}"
+      become: yes
+
+    - name: Install jenkins,docker and git
+      dnf:
+        name: 
+          - jenkins
+          - git
+          - docker
+        state: present
+      notify : 
+        - jenkins-installed  
+
+    - name: Ensure Docker group exists
+      group:
+        name: docker
+        state: present
+
+    - name: Add jenkins_user to Docker group
+      user:
+        name: jenkins
+        groups: docker
+        append: yes       
+
+  handlers:
+    - name: Reload and restart systemd services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      with_items:
+        - jenkins
+        - docker
+      listen: "jenkins-installed"
+
+    - name: Get jenkins admin password
+      command:
+        cmd: "cat {{ jenkins_admin_pass }}"
+      register: admin_password
+      listen: "jenkins-installed"
+
+    - name: Display file content
+      debug:
+        var: admin_password.stdout  
+      listen: "jenkins-installed"  
+
