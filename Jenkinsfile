@@ -7,7 +7,7 @@ def getEC2PublicIPs(String instanceEnv= null) {
             --filters "Name=instance-state-name,Values=running"
         '''
         
-        if (instanceName) {
+        if (instanceEnv) {
             filterCommand += ''' "Name=tag:env,Values=''' + instanceEnv + '''"'''
         }
         
