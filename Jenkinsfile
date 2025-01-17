@@ -35,8 +35,8 @@ def getEC2PublicIPs(String instanceEnv= null) {
 pipeline {
     agent any
     environment {
-        SERVER_DEV = "3.95.9.109"
-        SERVER_PROD = "34.201.63.141"
+        SERVER_DEV = "3.81.218.91"
+        SERVER_PROD = "35.173.185.69"
         IMAGE_NAME = "react-app"
         CONTAINER_PORT = "80"
         HOST_PORT = "80"
