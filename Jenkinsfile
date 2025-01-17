@@ -1,35 +1,31 @@
-def getEC2PublicIPs(String instanceEnv= null) {
-    withAWS(region: 'us-east-1', credentials: 'aws-credentials') {
-        def filterCommand = '''
-            aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].[PublicIpAddress,Tags[?Key==`Name`].Value[]]' \
-            --output text \
-            --filters "Name=instance-state-name,Values=running"
-        '''
-        
-        if (instanceEnv) {
-            filterCommand += ''' "Name=tag:env,Values=''' + instanceEnv + '''"'''
-        }
-        
-        def output = sh(
-            script: filterCommand,
-            returnStdout: true
-        ).trim()
-        
-        // Convert output to array of maps
-        def instances = []
-        output.split('\n').each { line ->
-            def parts = line.split('\t')
-            if (parts.length >= 2) {
-                instances << [
-                    ip: parts[0],
-                    name: parts[1]
-                ]
-            }
-        }
-        
-        return instances
+def getEC2PublicIPs(String instanceEnv = null) {
+    def filterCommand = "aws ec2 describe-instances " +
+        "--query 'Reservations[*].Instances[*].[PublicIpAddress,Tags[?Key==`Name`].Value[]]' " +
+        "--output text " +
+        "--filters 'Name=instance-state-name,Values=running'"
+
+    if (instanceEnv) {
+        filterCommand += " 'Name=tag:env,Values=${instanceEnv}'"
     }
+    
+    def output = sh(
+        script: filterCommand,
+        returnStdout: true
+    ).trim()
+    
+    // Convert output to array of maps
+    def instances = []
+    output.split('\n').each { line ->
+        def parts = line.split('\t')
+        if (parts.length >= 2) {
+            instances << [
+                ip: parts[0],
+                name: parts[1]
+            ]
+        }
+    }
+    
+    return instances
 }
 
 pipeline {
