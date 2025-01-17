@@ -1,3 +1,37 @@
+def getEC2PublicIPs(String instanceEnv= null) {
+    withAWS(region: 'us-east-1', credentials: 'aws-credentials') {
+        def filterCommand = '''
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].[PublicIpAddress,Tags[?Key==`Name`].Value[]]' \
+            --output text \
+            --filters "Name=instance-state-name,Values=running"
+        '''
+        
+        if (instanceName) {
+            filterCommand += ''' "Name=tag:env,Values=''' + instanceEnv + '''"'''
+        }
+        
+        def output = sh(
+            script: filterCommand,
+            returnStdout: true
+        ).trim()
+        
+        // Convert output to array of maps
+        def instances = []
+        output.split('\n').each { line ->
+            def parts = line.split('\t')
+            if (parts.length >= 2) {
+                instances << [
+                    ip: parts[0],
+                    name: parts[1]
+                ]
+            }
+        }
+        
+        return instances
+    }
+}
+
 pipeline {
     agent any
     environment {
@@ -9,6 +43,15 @@ pipeline {
         SSH_CREDS = credentials('jenkins-ssh-key')
     }
     stages {
+        stage('Get IPs') {
+            steps {
+                script {
+                    def ips = getEC2PublicIPs('prod')
+                    echo "Found IPs: ${ips}"
+                }
+            }
+        }
+
         stage('Initialize') {
             steps {
                 script {
