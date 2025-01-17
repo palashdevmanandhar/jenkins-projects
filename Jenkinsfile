@@ -1,13 +1,13 @@
-def getEC2PublicIPs(String instanceEnv= null) {
+def getEC2PublicIPs(String tagName= null,String tagValue= null) {
     withAWS(region: 'us-east-1', credentials: 'aws-credentials') {
         
-        if (instanceEnv) {
+        if (tagName && tagValue) {
             def filterCommand = '''
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text \
             --filters "Name=instance-state-name,Values=running"\
-            --filters "Name=tag:env,Values=${instanceEnv}"
+            --filters "Name=tag:${tagName},Values=${tagValue}"
         '''
         }else{
             def filterCommand = '''
@@ -50,7 +50,7 @@ pipeline {
                     withAWS(credentials: 'aws-credentials', region: 'us-east-1') {
                         try {
                             echo "Getting EC2 IPs for environment: prod"
-                            def ips = getEC2PublicIPs('prod')
+                            def ips = getEC2PublicIPs('env','prod')
                             echo "Found IPs: ${ips}"
                         } catch (Exception e) {
                             echo "Error getting IPs: ${e.message}"
