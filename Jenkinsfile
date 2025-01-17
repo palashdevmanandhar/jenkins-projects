@@ -7,8 +7,7 @@ def getEC2PublicIPs(String tagName= null,String tagValue= null) {
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text \
-            --filters "Name=instance-state-name,Values=running"\
-            --filters "Name=tag:${tagName},Values=${tagValue}"
+            --filters "Name=instance-state-name,Values=running" "Name=tag:${tagName},Values=${tagValue}"
         '''
         }else{
             filterCommand = '''
