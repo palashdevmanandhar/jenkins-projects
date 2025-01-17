@@ -1,8 +1,9 @@
 def getEC2PublicIPs(String tagName= null,String tagValue= null) {
     withAWS(region: 'us-east-1', credentials: 'aws-credentials') {
-        
+        def filterCommand
+
         if (tagName && tagValue) {
-            def filterCommand = '''
+            filterCommand = '''
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text \
@@ -10,7 +11,7 @@ def getEC2PublicIPs(String tagName= null,String tagValue= null) {
             --filters "Name=tag:${tagName},Values=${tagValue}"
         '''
         }else{
-            def filterCommand = '''
+            filterCommand = '''
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text \
@@ -47,7 +48,7 @@ pipeline {
         stage('Get IPs') {
             steps {
                 script {
-                    withAWS(credentials: 'aws-credentials', region: 'us-east-1') {
+                    
                         try {
                             echo "Getting EC2 IPs for environment: prod"
                             def ips = getEC2PublicIPs('env','prod')
@@ -56,7 +57,7 @@ pipeline {
                             echo "Error getting IPs: ${e.message}"
                             error("Failed to get EC2 IPs")
                         }
-                    }
+                    
                 }
             }
         }
