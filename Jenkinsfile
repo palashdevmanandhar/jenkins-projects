@@ -1,31 +1,35 @@
-def getEC2PublicIPs(String instanceEnv = null) {
-    def filterCommand = "aws ec2 describe-instances " +
-        "--query 'Reservations[*].Instances[*].[PublicIpAddress,Tags[?Key==`Name`].Value[]]' " +
-        "--output text " +
-        "--filters 'Name=instance-state-name,Values=running'"
-
-    if (instanceEnv) {
-        filterCommand += " 'Name=tag:env,Values=${instanceEnv}'"
-    }
-    
-    def output = sh(
-        script: filterCommand,
-        returnStdout: true
-    ).trim()
-    
-    // Convert output to array of maps
-    def instances = []
-    output.split('\n').each { line ->
-        def parts = line.split('\t')
-        if (parts.length >= 2) {
-            instances << [
-                ip: parts[0],
-                name: parts[1]
-            ]
+def getEC2PublicIPs(String instanceEnv= null) {
+    withAWS(region: 'us-east-1', credentials: 'aws-credentials') {
+        def filterCommand = '''
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].[PublicIpAddress,Tags[?Key==`Name`].Value[]]' \
+            --output text \
+            --filters "Name=instance-state-name,Values=running"
+        '''
+        
+        if (instanceEnv) {
+            filterCommand += ''' "Name=tag:env,Values=''' + instanceEnv + '''"'''
         }
+        
+        def output = sh(
+            script: filterCommand,
+            returnStdout: true
+        ).trim()
+        
+        // Convert output to array of maps
+        def instances = []
+        output.split('\n').each { line ->
+            def parts = line.split('\t')
+            if (parts.length >= 2) {
+                instances << [
+                    ip: parts[0],
+                    name: parts[1]
+                ]
+            }
+        }
+        
+        return instances
     }
-    
-    return instances
 }
 
 pipeline {
@@ -42,8 +46,16 @@ pipeline {
         stage('Get IPs') {
             steps {
                 script {
-                    def ips = getEC2PublicIPs('prod')
-                    echo "Found IPs: ${ips}"
+                    withAWS(credentials: 'aws-credentials', region: 'us-east-1') {
+                        try {
+                            echo "Getting EC2 IPs for environment: prod"
+                            def ips = getEC2PublicIPs('prod')
+                            echo "Found IPs: ${ips}"
+                        } catch (Exception e) {
+                            echo "Error getting IPs: ${e.message}"
+                            error("Failed to get EC2 IPs")
+                        }
+                    }
                 }
             }
         }
