@@ -1,12 +1,38 @@
---- 
-- hosts: jenkins_servers
-  gather_facts: yes  
+---
+# Gather public ip' of all jenkins servers
+- hosts: localhost
+  vars_files:
+    - /home/ansible/keys/aws-access.yml
   become: yes
-  vars:
-    - jenkins_download_url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
-    - jenkins_repo_destination: /etc/yum.repos.d/jenkins.repo
-    - jenkins_key_url: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
-    - jenkins_admin_pass: /var/lib/jenkins/secrets/initialAdminPassword
+  tasks:
+    - name: gather insances info
+      ec2_instance_info:
+        access_key: "{{ ACCESS_ID }}"
+        secret_key: "{{ SECRET_ID }}" 
+        region: "{{ REGION }}"
+        filters:
+          "tag:project": react-jenkins-project
+          "tag:Name": jenkins-server
+          instance-state-name: ["running"]
+      register: jenkins_instances
+
+    - name: extract public IP addresses of the instances
+      set_fact:
+        jenkins_public_ips: "{{ jenkins_instances.instances | map(attribute='public_ip_address') | list }}"  
+      
+    - name: create a dynamic host to inventory for jenkins servers
+      add_host:
+        hostname: "ec2-user@{{ item }}"
+        groupname: jenkins_hosts
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+      loop: "{{ jenkins_public_ips }}"  
+
+# Install jenkins in all jenkins servers
+- hosts: jenkins_hosts
+  become: yes
+  vars_files:
+    - /home/ansible/keys/aws-access.yml
+    - /home/ansible/keys/jenkins-vars.yml
   tasks:
     - name: Install java jdk to run jenkins and wget to download jenkins binary
       dnf:
@@ -15,58 +41,182 @@
           - wget
         state: present
 
-    - name: Download jenkins repository file
-      get_url:
-        url: "{{ jenkins_download_url }}"
-        dest: "{{ jenkins_repo_destination }}"
-        mode: '0644'
+    - name: Configure Jenkins repository and install jenkins
+      block:
+        - name: Download Jenkins repository file
+          get_url:
+            url: "{{ jenkins_download_url }}"
+            dest: "{{ jenkins_repo_destination }}"
+            mode: '0644'
 
-    - name: Import Jenkins GPG key
-      ansible.builtin.rpm_key:
-        state: present
-        key: "{{ jenkins_key_url }}"
-      become: yes
+        - name: Import Jenkins GPG key
+          ansible.builtin.rpm_key:
+            state: present
+            key: "{{ jenkins_key_url }}"  
 
-    - name: Install jenkins,docker and git
-      dnf:
-        name: 
-          - jenkins
-          - git
-          - docker
-        state: present
-      notify : 
-        - jenkins-installed  
+        - name: Install jenkins,docker and git
+          dnf:
+            name: 
+              - jenkins
+              - git
+              - docker
+            state: present
+            update_cache: yes
 
-    - name: Ensure Docker group exists
-      group:
-        name: docker
-        state: present
+    - name: Configure services and permissions
+      block:
+        - name: Ensure Docker group exists and Jenkins user is in it
+          block:
+            - name: Create Docker group
+              group:
+                name: docker
+                state: present
 
-    - name: Add jenkins_user to Docker group
-      user:
-        name: jenkins
-        groups: docker
-        append: yes       
+            - name: Add Jenkins user to Docker group
+              user:
+                name: jenkins
+                groups: docker
+                append: yes
 
-  handlers:
-    - name: Reload and restart systemd services
-      ansible.builtin.systemd:
-        name: "{{ item }}"
-        state: started
-        enabled: true
-      with_items:
-        - jenkins
-        - docker
-      listen: "jenkins-installed"
-
+        - name: Start and enable services
+          ansible.builtin.systemd:
+            name: "{{ item }}"
+            state: started
+            enabled: true
+            daemon_reload: true
+          loop:
+            - jenkins
+            - docker        
+   
     - name: Get jenkins admin password
       command:
         cmd: "cat {{ jenkins_admin_pass }}"
       register: admin_password
-      listen: "jenkins-installed"
 
-    - name: Display file content
-      debug:
-        var: admin_password.stdout  
-      listen: "jenkins-installed"  
+    - name: Configure Jenkins
+      block:
+        - name: Get Jenkins admin password
+          command: "cat {{ jenkins_admin_pass }}"
+          register: admin_password
+          changed_when: false
 
+        - name: Wait for Jenkins to start
+          uri:
+            url: "http://localhost:{{ jenkins_port }}/login"
+            status_code: 200
+          register: result
+          until: result.status == 200
+          retries: 60
+          delay: 5
+
+        - name: Install Jenkins plugins
+          jenkins_plugin:
+            name: "{{ item }}"
+            state: present
+            url_username: admin
+            url_password: "{{ admin_password.stdout }}"
+            url: "http://localhost:{{ jenkins_port }}"
+            timeout: 120
+          loop: "{{ jenkins_plugins }}"
+          vars:
+            jenkins_plugins:
+              - workflow-aggregator
+              - credentials
+              - ssh-agent
+              - workflow-scm-step
+              - pipeline-milestone-step
+              - pipeline-input-step
+              - pipeline-aws
+              - ws-cleanup
+              - git
+              - github
+              - github-branch-source
+              - docker-workflow
+              - docker-plugin
+              - role-strategy
+              - nodejs
+              - matrix-auth
+
+        - name: Restart Jenkins and wait for it to be ready
+          block:
+            - name: Restart Jenkins
+              ansible.builtin.systemd:
+                name: jenkins
+                state: restarted
+                daemon_reload: true
+
+            - name: Wait for Jenkins to start after restart
+              uri:
+                url: "http://localhost:{{ jenkins_port }}/login"
+                status_code: 200
+              register: result
+              until: result.status == 200
+              retries: 60
+              delay: 5
+
+    - name: Configure Jenkins security and credentials
+      block:
+        - name: Create Jenkins user and assign permissions
+          jenkins_script:
+            url: "http://localhost:{{ jenkins_port }}"
+            user: admin
+            password: "{{ admin_password.stdout }}"
+            script: |
+              import jenkins.model.*
+              import hudson.security.*
+              def instance = Jenkins.getInstance()
+              
+              try {
+                def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+                hudsonRealm.createAccount('{{ jenkins_user }}', '{{ jenkins_user_password }}')
+                instance.setSecurityRealm(hudsonRealm)
+                
+                def strategy = new hudson.security.ProjectMatrixAuthorizationStrategy()
+                strategy.add(Jenkins.ADMINISTER, 'admin')
+                strategy.add(Jenkins.ADMINISTER, '{{ jenkins_user }}')
+                
+                instance.setAuthorizationStrategy(strategy)
+                instance.save()
+              } catch (Exception e) {
+                throw e
+              }
+
+        - name: Read SSH private key
+          command: "cat {{ private_key_path }}"
+          register: ssh_key_content
+          delegate_to: localhost
+          changed_when: false      
+
+        - name: Create Jenkins credentials
+          jenkins_script:
+            url: "http://localhost:{{ jenkins_port }}"
+            user: admin
+            password: "{{ admin_password.stdout }}"
+            script: |
+              import jenkins.model.*
+              import com.cloudbees.plugins.credentials.*
+              import com.cloudbees.plugins.credentials.domains.*
+              import com.cloudbees.plugins.credentials.impl.*
+              import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
+              
+              def store = Jenkins.getInstance()
+                .getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0]
+                .getStore()
+              def domain = Domain.global()
+              
+              store.addCredentials(domain, new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, 'aws-credentials', 'AWS Access Credentials',
+                '{{ ACCESS_ID }}', '{{ SECRET_ID }}'
+              ))
+              
+              store.addCredentials(domain, new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, 'github-credentials', 'GitHub Access Token',
+                '{{ GIT_USER }}', '{{ GIT_PAT }}'
+              ))
+              
+              store.addCredentials(domain, new BasicSSHUserPrivateKey(
+                CredentialsScope.GLOBAL, 'jenkins-ssh-key', '{{ jenkins_ssh_user }}',
+                new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource('''{{ ssh_key_content.stdout }}'''),
+                '', 'SSH key for Jenkins automation'
+              ))
+ 
