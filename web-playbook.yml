@@ -10,7 +10,7 @@
         secret_key: "{{ SECRET_ID }}" 
         region: "{{ REGION }}"
         filters:
-          "tag:function": webserver
+          "tag:project": react-jenkins-project
           instance-state-name: ["running"]
       register: web_app_instances
 
@@ -31,7 +31,7 @@
 
 - hosts: react_hosts
   become: yes
-  gather_facts: no
+  gather_facts: yes
   tasks:
   - name: install docker
     dnf:

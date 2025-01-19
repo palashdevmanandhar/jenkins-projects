@@ -71,9 +71,10 @@ resource "aws_instance" "staging_instance" {
 
   # Add Tags
   tags = {
-    Name    = "staging-server"
-    project = var.project_name
-    env     = "dev"
+    Name     = "staging-server"
+    project  = var.project_name
+    env      = "dev"
+    function = "webserver"
   }
 }
 
@@ -97,9 +98,10 @@ resource "aws_instance" "production_instance" {
 
   # Add Tags
   tags = {
-    Name    = "production-server"
-    project = var.project_name
-    env     = "prod"
+    Name     = "production-server"
+    project  = var.project_name
+    env      = "prod"
+    function = "webserver"
   }
 }
 
@@ -123,7 +125,8 @@ resource "aws_instance" "jenkins_instance" {
 
   # Add Tags
   tags = {
-    Name    = "jenkins-server"
-    project = var.project_name
+    Name     = "jenkins-server"
+    project  = var.project_name
+    function = "jenkins"
   }
 }
