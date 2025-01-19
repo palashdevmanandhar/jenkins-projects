@@ -1,0 +1,10 @@
+# Sample of jenkins vars
+jenkins_user: palash
+jenkins_user_password: password
+jenkins_download_url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+jenkins_repo_destination: /etc/yum.repos.d/jenkins.repo
+jenkins_key_url: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+jenkins_admin_pass: /var/lib/jenkins/secrets/initialAdminPassword
+jenkins_port: 8080
+private_key_path: /home/ansible/.ssh/id_rsa
+jenkins_ssh_user: ec2-user

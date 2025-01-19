@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set variables for resource names
-BUCKET_NAME="terraform-state-react-jenkins"  # Unique bucket name using timestamp
+BUCKET_NAME="tf-state-react-jenkins"  # Unique bucket name using timestamp
 TABLE_NAME="terraform-state-lock"
 REGION="us-east-1"  # Change this to your preferred region
 
