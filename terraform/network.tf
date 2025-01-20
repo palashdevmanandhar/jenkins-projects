@@ -31,10 +31,10 @@ resource "aws_subnet" "public_subnet_region1" {
 resource "aws_subnet" "public_subnet_region1_az2" {
   provider                = aws.region1
   vpc_id                  = aws_vpc.vpc_region1.id
-  cidr_block              = "10.0.2.0/24"  # Different CIDR block
+  cidr_block              = "10.0.2.0/24" # Different CIDR block
   map_public_ip_on_launch = true
-  availability_zone       = var.availability_zone2_region1  # Different AZ
-  
+  availability_zone       = var.availability_zone2_region1 # Different AZ
+
   tags = {
     Name    = "public_subnet_region1_az2"
     project = var.project_name
@@ -119,6 +119,8 @@ resource "aws_subnet" "public_subnet_region2" {
   cidr_block              = "172.16.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = var.availability_zone_region2
+
+  depends_on = [aws_vpc.vpc_region2]
 
   tags = {
     Name    = "public_subnet_region2"
