@@ -6,7 +6,7 @@ resource "aws_key_pair" "key_pair_region1" {
 
   tags = {
     project = var.project_name
-    region = var.region1
+    region  = var.region1
   }
 }
 
@@ -52,7 +52,7 @@ resource "aws_security_group" "sg_region1" {
   tags = {
     Name    = "sg_region1"
     project = var.project_name
-    region = var.region1
+    region  = var.region1
   }
 }
 
@@ -80,7 +80,7 @@ resource "aws_instance" "staging_instance" {
     project  = var.project_name
     env      = "dev"
     function = "webserver"
-    region = var.region1
+    region   = var.region1
   }
 }
 
@@ -108,7 +108,7 @@ resource "aws_instance" "production_instance_region1" {
     project  = var.project_name
     env      = "prod"
     function = "webserver"
-    region = var.region1
+    region   = var.region1
   }
 }
 
@@ -135,7 +135,7 @@ resource "aws_instance" "jenkins_instance" {
     Name     = "jenkins-server"
     project  = var.project_name
     function = "jenkins"
-    region = var.region1
+    region   = var.region1
   }
 }
 
@@ -151,7 +151,7 @@ resource "aws_key_pair" "key_pair_region2" {
 
   tags = {
     project = var.project_name
-    region = var.region2
+    region  = var.region2
   }
 }
 
@@ -189,7 +189,7 @@ resource "aws_security_group" "sg_region2" {
   tags = {
     Name    = "sg_region2"
     project = var.project_name
-    region = var.region2
+    region  = var.region2
   }
 }
 
@@ -217,7 +217,7 @@ resource "aws_instance" "production_instance_region2" {
     project  = var.project_name
     env      = "prod"
     function = "webserver"
-    region = var.region2
+    region   = var.region2
   }
 }
 

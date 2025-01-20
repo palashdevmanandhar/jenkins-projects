@@ -22,8 +22,8 @@ resource "aws_security_group" "alb_sg" {
   }
 
   tags = {
-    Name = "alb-security-group"
-    region = region1
+    Name    = "alb-security-group"
+    region  = region1
     project = var.project_name
   }
 }
@@ -38,9 +38,9 @@ resource "aws_lb" "alb_region1" {
   subnets            = [aws_subnet.public_subnet_region1.id]
 
   tags = {
-    project  = var.project_name
-    env      = "prod"
-    region = var.region1
+    project = var.project_name
+    env     = "prod"
+    region  = var.region1
   }
 }
 
@@ -65,10 +65,10 @@ resource "aws_lb_target_group" "tg_region1" {
   }
 
   tags = {
-    project  = var.project_name
-    env      = "prod"
-    region = var.region1
-  } 
+    project = var.project_name
+    env     = "prod"
+    region  = var.region1
+  }
 }
 
 # Register production instances with target group
