@@ -27,6 +27,22 @@ resource "aws_subnet" "public_subnet_region1" {
   }
 }
 
+# Additional subnet in region1
+resource "aws_subnet" "public_subnet_region1_az2" {
+  provider                = aws.region1
+  vpc_id                  = aws_vpc.vpc_region1.id
+  cidr_block              = "10.0.2.0/24"  # Different CIDR block
+  map_public_ip_on_launch = true
+  availability_zone       = var.availability_zone2_region1  # Different AZ
+  
+  tags = {
+    Name    = "public_subnet_region1_az2"
+    project = var.project_name
+    region  = var.region1
+  }
+}
+
+
 # Internet Gateway
 resource "aws_internet_gateway" "igw_region1" {
   provider = aws.region1
@@ -69,6 +85,13 @@ resource "aws_route_table_association" "public_association_region1" {
   subnet_id      = aws_subnet.public_subnet_region1.id
   route_table_id = aws_route_table.public_rt_region1.id
 }
+
+resource "aws_route_table_association" "public_association_region1_az2" {
+  provider       = aws.region1
+  subnet_id      = aws_subnet.public_subnet_region1_az2.id
+  route_table_id = aws_route_table.public_rt_region1.id
+}
+
 
 ########## End of resources for region 1 ##########
 

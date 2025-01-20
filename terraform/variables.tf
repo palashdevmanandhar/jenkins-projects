@@ -11,6 +11,14 @@ variable "region2" {
   description = "oregon region"
 }
 
+variable "availability_zone2_region1" {
+  type        = string
+  default     = "us-east-1b"
+  description = "second az region one"
+}
+
+
+
 variable "availability_zone_region1" {
   type        = string
   default     = "us-east-1a"
