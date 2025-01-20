@@ -23,7 +23,7 @@ resource "aws_security_group" "alb_sg" {
 
   tags = {
     Name    = "alb-security-group"
-    region  = region1
+    region  = var.region1
     project = var.project_name
   }
 }
