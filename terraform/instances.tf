@@ -1,6 +1,7 @@
 ######### Start of instances for Region1 ########
 
 resource "aws_key_pair" "key_pair_region1" {
+  provider   = aws.region1
   key_name   = "key_pair_region1" # Replace with your desired key pair name
   public_key = file(var.public_key_path)
 
@@ -11,6 +12,7 @@ resource "aws_key_pair" "key_pair_region1" {
 }
 
 resource "aws_security_group" "sg_region1" {
+  provider    = aws.region1
   name        = "sg_region1"
   description = "Security group allowing SSH (22) and HTTP (80) ingress and all egress"
   vpc_id      = aws_vpc.vpc_region1.id # Replace with your VPC ID
@@ -57,6 +59,7 @@ resource "aws_security_group" "sg_region1" {
 }
 
 resource "aws_instance" "staging_instance" {
+  provider                    = aws.region1
   ami                         = var.aws_ami_id_region1
   instance_type               = "t2.micro"
   associate_public_ip_address = true
@@ -85,6 +88,7 @@ resource "aws_instance" "staging_instance" {
 }
 
 resource "aws_instance" "production_instance_region1" {
+  provider                    = aws.region1
   ami                         = var.aws_ami_id_region1
   instance_type               = "t2.micro"
   associate_public_ip_address = true
@@ -113,6 +117,7 @@ resource "aws_instance" "production_instance_region1" {
 }
 
 resource "aws_instance" "jenkins_instance" {
+  provider                    = aws.region1
   ami                         = var.aws_ami_id_region1
   instance_type               = "t2.medium"
   associate_public_ip_address = true
@@ -146,6 +151,7 @@ resource "aws_instance" "jenkins_instance" {
 
 
 resource "aws_key_pair" "key_pair_region2" {
+  provider   = aws.region2
   key_name   = "key_pair_region2" # Replace with your desired key pair name
   public_key = file(var.public_key_path)
 
@@ -156,9 +162,11 @@ resource "aws_key_pair" "key_pair_region2" {
 }
 
 resource "aws_security_group" "sg_region2" {
+  provider    = aws.region2
   name        = "sg_region2"
   description = "Security group allowing SSH (22) and HTTP (80) ingress and all egress"
-  vpc_id      = aws_vpc.vpc_region2.id # Replace with your VPC ID
+  vpc_id      = aws_vpc.vpc_region2.id
+  depends_on  = [aws_vpc.vpc_region2]
 
   # Ingress Rules
   ingress {
@@ -194,6 +202,7 @@ resource "aws_security_group" "sg_region2" {
 }
 
 resource "aws_instance" "production_instance_region2" {
+  provider                    = aws.region2
   ami                         = var.aws_ami_id_region2
   instance_type               = "t2.micro"
   associate_public_ip_address = true
