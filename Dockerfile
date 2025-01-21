@@ -16,17 +16,30 @@ COPY . .
 # Build the React app for production
 RUN npm run build
 
-# Step 2: Use nginx:alpine instead of alpine:latest
-FROM nginx:alpine
+# Step 2: Use nginx:alpine and node for both frontend and backend
+FROM node:16-alpine
 
-# Copy the built React app from the previous stage
+# Install nginx
+RUN apk add --no-cache nginx
+
+# Copy the built React app
 COPY --from=build /app/build /usr/share/nginx/html
+
+# Copy the backend server
+COPY src/server.js /app/
+COPY package.json /app/
+
+# Set working directory
+WORKDIR /app
+
+# Install production dependencies only
+RUN npm install express cors axios --force
 
 # Copy the nginx configuration file
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Expose port 80
-EXPOSE 80
+# Expose ports
+EXPOSE 80 3001
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start both nginx and node server
+CMD ["sh", "-c", "nginx && node server.js"]
