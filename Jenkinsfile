@@ -62,6 +62,50 @@ pipeline {
     }
     stages {
         // Previous stages remain the same until Deploy Development
+
+        stage('Get IPs') {
+            steps {
+                script {
+                    
+                        try {
+                            echo "Getting EC2 IPs for environment: prod"
+                            def devIps = getEC2PublicIPs('env','dev')
+                            env.SERVER_DEV = "${devIps[0]}"
+                            echo "Dev IPs: ${devIps[0]}"
+                            def prodIps = getEC2PublicIPs('env','prod')
+                            echo "Prod IPs: ${prodIps}"
+                            env.SERVER_PROD = prodIps.join(',') 
+                        } catch (Exception e) {
+                            echo "Error getting IPs: ${e.message}"
+                            error("Failed to get EC2 IPs")
+                        }
+                    
+                }
+            }
+        }
+        stage('Initialize') {
+            steps {
+                script {
+                    env.IMAGE_TAG = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    env.CONTAINER_NAME = "${IMAGE_NAME}-${env.BUILD_NUMBER}"
+                    echo "Using Docker image tag: ${env.IMAGE_TAG}"
+                }
+            }
+        }
+        stage('Checkout') {
+            steps {
+                echo "Checking out the code"
+                checkout scm
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                echo "Building Docker image"
+                script {
+                    sh "docker build -t ${env.IMAGE_TAG} --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} ."
+                }
+            }
+        }
         
         stage('Deploy Development') {
             steps {
