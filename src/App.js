@@ -1,7 +1,24 @@
+import { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
 function App() {
+  const [serverIP, setServerIP] = useState('Loading...');
+
+  useEffect(() => {
+    const fetchIP = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/ip');
+        const data = await response.json();
+        setServerIP(data.ip);
+      } catch (error) {
+        setServerIP('Failed to load IP');
+        console.error('Error fetching IP:', error);
+      }
+    };
+
+    fetchIP();
+  }, []);
 
   return (
     <div className="App">
@@ -11,6 +28,7 @@ function App() {
           Edit <code>src/App.js</code> and save to reload.
         </p>
         <p className="text-xl">
+          Server IP: {serverIP}
         </p>
         <a
           className="App-link"
