@@ -72,19 +72,26 @@ resource "aws_lb_target_group" "tg_region1" {
 }
 
 # Register production instances with target group
-resource "aws_lb_target_group_attachment" "tg_attachment_region1" {
+resource "aws_lb_target_group_attachment" "tg_attachment_region1_prod_node1" {
   provider         = aws.region1
   target_group_arn = aws_lb_target_group.tg_region1.arn
-  target_id        = aws_instance.production_instance_region1.id
+  target_id        = aws_instance.production_instance_node1.id
   port             = 80
 }
 
-resource "aws_lb_target_group_attachment" "tg_attachment_region2" {
+resource "aws_lb_target_group_attachment" "tg_attachment_region1_prod_node2" {
   provider         = aws.region1
   target_group_arn = aws_lb_target_group.tg_region1.arn
-  target_id        = aws_instance.production_instance_region2.id
+  target_id        = aws_instance.production_instance_node2.id
   port             = 80
 }
+
+# resource "aws_lb_target_group_attachment" "tg_attachment_region2" {
+#   provider         = aws.region1
+#   target_group_arn = aws_lb_target_group.tg_region1.arn
+#   target_id        = aws_instance.production_instance_region2.id
+#   port             = 80
+# }
 
 # ALB Listener
 resource "aws_lb_listener" "front_end" {
