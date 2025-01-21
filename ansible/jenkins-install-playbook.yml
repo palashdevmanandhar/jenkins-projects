@@ -12,7 +12,7 @@
         region: "{{ REGION }}"
         filters:
           "tag:project": react-jenkins-project
-          "tag:Name": jenkins-server
+          "tag:Name": jenkins_control
           instance-state-name: ["running"]
       register: jenkins_instances
 

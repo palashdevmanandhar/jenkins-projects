@@ -54,8 +54,8 @@ pipeline {
                             env.SERVER_DEV = "${devIps[0]}"
                             echo "Dev IPs: ${devIps[0]}"
                             def prodIps = getEC2PublicIPs('env','prod')
-                            echo "Prod IPs: ${prodIps[0]}"
-                            env.SERVER_PROD = "${prodIps[0]}"
+                            echo "Prod IPs: ${prodIps}"
+                            env.SERVER_PROD = prodIps.join(',') 
                         } catch (Exception e) {
                             echo "Error getting IPs: ${e.message}"
                             error("Failed to get EC2 IPs")
@@ -125,34 +125,41 @@ pipeline {
                 input 'Does the development environment look OK?'
                 milestone(1)
                 script {
-                    sshagent(['jenkins-ssh-key']) {
-                        // Stop and remove existing container if it exists
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ec2-user@${env.SERVER_PROD} '
-                                CONTAINER_IDS=\$(docker ps -a --filter name=${env.IMAGE_NAME} --format "{{.ID}}")
-                                if [ ! -z "\$CONTAINER_IDS" ]; then
-                                    docker stop \$CONTAINER_IDS
-                                    docker rm \$CONTAINER_IDS
-                                fi
-                            '
-                        """
-                        
-                        // Transfer and deploy new container
-                        sh """
-                            scp ${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar ec2-user@${env.SERVER_PROD}:/tmp/
-                            ssh ec2-user@${env.SERVER_PROD} '
-                                docker load < /tmp/${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar && \
-                                docker run -d \
-                                    --name ${env.CONTAINER_NAME} \
-                                    -p ${env.HOST_PORT}:${env.CONTAINER_PORT} \
-                                    --restart unless-stopped \
-                                    ${env.IMAGE_TAG}
-                                rm /tmp/${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar
-                            '
-                        """
+                    // Split the comma-separated list of production IPs
+                    def prodServerList = env.SERVER_PROD.split(',')
+                    
+                    // Deploy to each production server
+                    prodServerList.each { serverIP ->
+                        echo "Deploying to production server: ${serverIP}"
+                        sshagent(['jenkins-ssh-key']) {
+                            // Stop and remove existing container if it exists
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ec2-user@${serverIP} '
+                                    CONTAINER_IDS=\$(docker ps -a --filter name=${env.IMAGE_NAME} --format "{{.ID}}")
+                                    if [ ! -z "\$CONTAINER_IDS" ]; then
+                                        docker stop \$CONTAINER_IDS
+                                        docker rm \$CONTAINER_IDS
+                                    fi
+                                '
+                            """
+                            
+                            // Transfer and deploy new container
+                            sh """
+                                scp ${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar ec2-user@${serverIP}:/tmp/
+                                ssh ec2-user@${serverIP} '
+                                    docker load < /tmp/${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar && \
+                                    docker run -d \
+                                        --name ${env.CONTAINER_NAME} \
+                                        -p ${env.HOST_PORT}:${env.CONTAINER_PORT} \
+                                        --restart unless-stopped \
+                                        ${env.IMAGE_TAG}
+                                    rm /tmp/${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar
+                                '
+                            """
+                        }
                     }
-                }       
-            }
+                }   
+            }    
         }
     }
     post {
