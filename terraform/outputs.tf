@@ -23,3 +23,10 @@ output "ec2_public_ip_prod_node2" {
   description = "The public IP of the staging EC2 instance"
 }
 
+
+output "alb_dns" {
+  value       = aws_lb.alb_region1
+  description = "Check alb dns"
+}
+
+
