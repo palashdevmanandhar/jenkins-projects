@@ -127,63 +127,64 @@ resource "aws_instance" "staging_instance" {
   }
 }
 
-resource "aws_instance" "production_instance_node1" {
-  provider                    = aws.region1
-  ami                         = var.aws_ami_id_region1
-  instance_type               = "t2.micro"
-  associate_public_ip_address = true
-  subnet_id                   = aws_subnet.public_subnet_region1.id
+# Create instances for prod deployment
+# resource "aws_instance" "production_instance_node1" {
+#   provider                    = aws.region1
+#   ami                         = var.aws_ami_id_region1
+#   instance_type               = "t2.micro"
+#   associate_public_ip_address = true
+#   subnet_id                   = aws_subnet.public_subnet_region1.id
 
-  # Security Group (optional, add an existing SG or use Terraform to create one)
-  vpc_security_group_ids = [aws_security_group.prod_sg.id]
+#   # Security Group (optional, add an existing SG or use Terraform to create one)
+#   vpc_security_group_ids = [aws_security_group.prod_sg.id]
 
-  # Key Pair for SSH Access
-  key_name = aws_key_pair.key_pair_region1.key_name
+#   # Key Pair for SSH Access
+#   key_name = aws_key_pair.key_pair_region1.key_name
 
-  # Add a basic block device (root volume)
-  root_block_device {
-    volume_size = 8 # 8GB root volume
-    volume_type = "gp3"
-  }
+#   # Add a basic block device (root volume)
+#   root_block_device {
+#     volume_size = 8 # 8GB root volume
+#     volume_type = "gp3"
+#   }
 
-  # Add Tags
-  tags = {
-    Name     = "production_instance_node1"
-    project  = var.project_name
-    env      = "prod"
-    function = "webserver"
-    region   = var.region1
-  }
-}
+#   # Add Tags
+#   tags = {
+#     Name     = "production_instance_node1"
+#     project  = var.project_name
+#     env      = "prod"
+#     function = "webserver"
+#     region   = var.region1
+#   }
+# }
 
-resource "aws_instance" "production_instance_node2" {
-  provider                    = aws.region1
-  ami                         = var.aws_ami_id_region1
-  instance_type               = "t2.micro"
-  associate_public_ip_address = true
-  subnet_id                   = aws_subnet.public_subnet_region1_az2.id
+# resource "aws_instance" "production_instance_node2" {
+#   provider                    = aws.region1
+#   ami                         = var.aws_ami_id_region1
+#   instance_type               = "t2.micro"
+#   associate_public_ip_address = true
+#   subnet_id                   = aws_subnet.public_subnet_region1_az2.id
 
-  # Security Group (optional, add an existing SG or use Terraform to create one)
-  vpc_security_group_ids = [aws_security_group.prod_sg.id]
+#   # Security Group (optional, add an existing SG or use Terraform to create one)
+#   vpc_security_group_ids = [aws_security_group.prod_sg.id]
 
-  # Key Pair for SSH Access
-  key_name = aws_key_pair.key_pair_region1.key_name
+#   # Key Pair for SSH Access
+#   key_name = aws_key_pair.key_pair_region1.key_name
 
-  # Add a basic block device (root volume)
-  root_block_device {
-    volume_size = 8 # 8GB root volume
-    volume_type = "gp3"
-  }
+#   # Add a basic block device (root volume)
+#   root_block_device {
+#     volume_size = 8 # 8GB root volume
+#     volume_type = "gp3"
+#   }
 
-  # Add Tags
-  tags = {
-    Name     = "production_instance_node2"
-    project  = var.project_name
-    env      = "prod"
-    function = "webserver"
-    region   = var.region1
-  }
-}
+#   # Add Tags
+#   tags = {
+#     Name     = "production_instance_node2"
+#     project  = var.project_name
+#     env      = "prod"
+#     function = "webserver"
+#     region   = var.region1
+#   }
+# }
 
 resource "aws_instance" "jenkins_control" {
   provider                    = aws.region1
