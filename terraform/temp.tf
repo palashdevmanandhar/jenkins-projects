@@ -1,33 +1,3 @@
-# terraform {
-#   backend "s3" {
-#     bucket         = "tf-state-react-jenkins"
-#     key            = "terraform/state/terraform.tfstate" # Path to state file
-#     region         = "us-east-1"
-#     dynamodb_table = "terraform-state-lock" # Optional, for state locking
-#     encrypt        = true                   # Encrypt state file at rest using AWS KMS
-#   }
-# }
-
-# terraform {
-#   required_providers {
-#     aws = {
-#       source  = "hashicorp/aws"
-#       version = "~> 5.0"
-#     }
-#   }
-# }
-
-# provider "aws" {
-#   region = var.region1
-#   alias  = "region1"
-# }
-
-# provider "aws" {
-#   region = var.region2
-#   alias  = "region2"
-# }
-
-
 # ############ Begining of ALB resources for Region1 ##########
 
 # # Security Group for ALB
@@ -116,6 +86,12 @@
 #   port             = 80
 # }
 
+# # resource "aws_lb_target_group_attachment" "tg_attachment_region2" {
+# #   provider         = aws.region1
+# #   target_group_arn = aws_lb_target_group.tg_region1.arn
+# #   target_id        = aws_instance.production_instance_region2.id
+# #   port             = 80
+# # }
 
 # # ALB Listener
 # resource "aws_lb_listener" "front_end" {
@@ -131,6 +107,8 @@
 # }
 
 # ############ End of ALB resources for Region1 ##########
+
+# ######### Start of instances for Region1 ########
 
 # resource "aws_key_pair" "key_pair_region1" {
 #   provider   = aws.region1
@@ -190,6 +168,47 @@
 #   }
 # }
 
+# resource "aws_security_group" "prod_sg" {
+#   provider    = aws.region1
+#   name        = "prod-instance-security-group"
+#   description = "Security group for EC2 instances in target group"
+#   vpc_id      = aws_vpc.vpc_region1.id
+
+#   # Allow inbound traffic only from ALB
+#   ingress {
+#     description     = "Allow HTTP from ALB"
+#     from_port       = 80
+#     to_port         = 80
+#     protocol        = "tcp"
+#     security_groups = [aws_security_group.alb_sg.id]
+#   }
+
+#   # Allow SSH access for management
+#   ingress {
+#     description = "Allow SSH from all"
+#     from_port   = 22
+#     to_port     = 22
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"] # Consider restricting this to your IP range
+#   }
+
+#   # Egress Rules
+#   egress {
+#     description = "Allow all egress"
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+
+#   tags = {
+#     Name    = "prod-instance-security-group"
+#     project = var.project_name
+#     region  = var.region1
+#   }
+# }
+
+
 
 # resource "aws_instance" "production_instance_node1" {
 #   provider                    = aws.region1
@@ -199,7 +218,7 @@
 #   subnet_id                   = aws_subnet.public_subnet_region1.id
 
 #   # Security Group (optional, add an existing SG or use Terraform to create one)
-#   vpc_security_group_ids = [aws_security_group.sg_region1.id]
+#   vpc_security_group_ids = [aws_security_group.prod_sg.id]
 
 #   # Key Pair for SSH Access
 #   key_name = aws_key_pair.key_pair_region1.key_name
@@ -228,7 +247,7 @@
 #   subnet_id                   = aws_subnet.public_subnet_region1_az2.id
 
 #   # Security Group (optional, add an existing SG or use Terraform to create one)
-#   vpc_security_group_ids = [aws_security_group.sg_region1.id]
+#   vpc_security_group_ids = [aws_security_group.prod_sg.id]
 
 #   # Key Pair for SSH Access
 #   key_name = aws_key_pair.key_pair_region1.key_name
@@ -247,4 +266,127 @@
 #     function = "webserver"
 #     region   = var.region1
 #   }
+# }
+
+# # VPC for region1
+# resource "aws_vpc" "vpc_region1" {
+#   provider             = aws.region1
+#   cidr_block           = "10.0.0.0/16"
+#   enable_dns_hostnames = true
+#   enable_dns_support   = true
+#   tags = {
+#     Name    = "vpc_region1"
+#     project = var.project_name
+#     region  = var.region1
+#   }
+# }
+
+# # Public Subnet
+# resource "aws_subnet" "public_subnet_region1" {
+#   provider                = aws.region1
+#   vpc_id                  = aws_vpc.vpc_region1.id
+#   cidr_block              = "10.0.1.0/24"
+#   map_public_ip_on_launch = true
+#   availability_zone       = var.availability_zone_region1
+#   tags = {
+#     Name    = "public_subnet_region1"
+#     project = var.project_name
+#     region  = var.region1
+#   }
+# }
+
+# # Additional subnet in region1
+# resource "aws_subnet" "public_subnet_region1_az2" {
+#   provider                = aws.region1
+#   vpc_id                  = aws_vpc.vpc_region1.id
+#   cidr_block              = "10.0.2.0/24" # Different CIDR block
+#   map_public_ip_on_launch = true
+#   availability_zone       = var.availability_zone2_region1 # Different AZ
+
+#   tags = {
+#     Name    = "public_subnet_region1_az2"
+#     project = var.project_name
+#     region  = var.region1
+#   }
+# }
+
+
+# # Internet Gateway
+# resource "aws_internet_gateway" "igw_region1" {
+#   provider = aws.region1
+#   vpc_id   = aws_vpc.vpc_region1.id
+#   tags = {
+#     Name    = "igw_region1"
+#     project = var.project_name
+#     region  = var.region1
+#   }
+# }
+
+# # Route Table
+# resource "aws_route_table" "public_rt_region1" {
+#   provider = aws.region1
+#   vpc_id   = aws_vpc.vpc_region1.id
+
+#   route {
+#     cidr_block = "0.0.0.0/0"
+#     gateway_id = aws_internet_gateway.igw_region1.id
+#   }
+
+#   tags = {
+#     Name    = "public_rt_region1"
+#     project = var.project_name
+#     region  = var.region1
+#   }
+# }
+
+# # Route for Internet Access
+# # resource "aws_route" "default_route_region1" {
+# #   provider             = aws.region1
+# #   route_table_id         = aws_route_table.public_rt_region1.id
+# #   destination_cidr_block = "0.0.0.0/0"
+# #   gateway_id             = aws_internet_gateway.igw_region1.id
+# # }
+
+# # Associate Route Table with Public Subnet
+# resource "aws_route_table_association" "public_association_region1" {
+#   provider       = aws.region1
+#   subnet_id      = aws_subnet.public_subnet_region1.id
+#   route_table_id = aws_route_table.public_rt_region1.id
+# }
+
+# resource "aws_route_table_association" "public_association_region1_az2" {
+#   provider       = aws.region1
+#   subnet_id      = aws_subnet.public_subnet_region1_az2.id
+#   route_table_id = aws_route_table.public_rt_region1.id
+# }
+
+
+# terraform {
+#   backend "s3" {
+#     bucket         = "tf-state-react-jenkins"
+#     key            = "terraform/state/terraform.tfstate" # Path to state file
+#     region         = "us-east-1"
+#     dynamodb_table = "terraform-state-lock" # Optional, for state locking
+#     encrypt        = true                   # Encrypt state file at rest using AWS KMS
+#   }
+# }
+
+
+# terraform {
+#   required_providers {
+#     aws = {
+#       source  = "hashicorp/aws"
+#       version = "~> 5.0"
+#     }
+#   }
+# }
+
+# provider "aws" {
+#   region = var.region1
+#   alias  = "region1"
+# }
+
+# provider "aws" {
+#   region = var.region2
+#   alias  = "region2"
 # }
