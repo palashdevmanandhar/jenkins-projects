@@ -13,15 +13,15 @@ output "ec2_jenkins_node" {
   description = "The public IP of the jenkins EC2 instance"
 }
 
-output "ec2_public_ip_prod_node1" {
-  value       = aws_instance.production_instance_node1.public_ip
-  description = "The public IP of the staging EC2 instance"
-}
+# output "ec2_public_ip_prod_node1" {
+#   value       = aws_instance.production_instance_node1.public_ip
+#   description = "The public IP of the staging EC2 instance"
+# }
 
-output "ec2_public_ip_prod_node2" {
-  value       = aws_instance.production_instance_node2.public_ip
-  description = "The public IP of the staging EC2 instance"
-}
+# output "ec2_public_ip_prod_node2" {
+#   value       = aws_instance.production_instance_node2.public_ip
+#   description = "The public IP of the staging EC2 instance"
+# }
 
 
 output "alb_dns" {
