@@ -8,7 +8,7 @@ function App() {
   useEffect(() => {
     const fetchIP = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/ip');
+        const response = await fetch('/api/ip');
         const data = await response.json();
         setServerIP(data.ip);
       } catch (error) {
@@ -16,7 +16,6 @@ function App() {
         console.error('Error fetching IP:', error);
       }
     };
-
     fetchIP();
   }, []);
 
