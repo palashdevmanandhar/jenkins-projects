@@ -32,6 +32,8 @@
 - hosts: react_hosts
   become: yes
   gather_facts: no
+  vars_files:
+    - /home/ansible/keys/aws-access.yml
   tasks:
   - name: install docker
     dnf:
@@ -53,4 +55,16 @@
     user:
       name: ec2-user
       groups: docker
-      append: yes    
+      append: yes   
+
+  - name: Perform ECR login
+    shell: "aws ecr get-login-password --region {{ REGION }} | docker login --username AWS --password-stdin {{ ECR_REPO_URL }}"
+    args:
+      executable: /bin/bash
+    become: yes
+    become_user: ec2-user
+    register: ecr_login_result
+
+  - name: Display ECR login result
+    debug:
+      var: ecr_login_result.stdout_lines     

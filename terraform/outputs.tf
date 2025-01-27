@@ -25,8 +25,12 @@ output "ec2_jenkins_node" {
 
 
 output "alb_dns" {
-  value       = aws_lb.alb_region1
+  value       = aws_lb.alb_region1.dns_name
   description = "Check alb dns"
 }
 
 
+output "ecr_repository_url"{
+  value       = aws_ecr_repository.react_image_repo.repository_url
+  description = "Check alb dns"
+}

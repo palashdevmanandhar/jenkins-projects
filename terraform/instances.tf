@@ -117,6 +117,10 @@ resource "aws_instance" "staging_instance" {
     volume_type = "gp3"
   }
 
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2_ecr_profile.name
+  }
+
   # Add Tags
   tags = {
     Name     = "staging-server"
