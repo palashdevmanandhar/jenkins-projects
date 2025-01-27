@@ -136,7 +136,7 @@ pipeline {
                         // Stop and remove existing containers
                         sh """
                             ssh -o StrictHostKeyChecking=no ec2-user@${env.SERVER_DEV} '
-                                CONTAINER_IDS=\$(docker ps -a --filter name=${env.CONTAINER_NAME} --format "{{.ID}}")
+                                CONTAINER_IDS=\$(docker ps -a --filter name=${env.IMAGE_NAME} --format "{{.ID}}")
                                 if [ ! -z "\$CONTAINER_IDS" ]; then
                                     docker stop \$CONTAINER_IDS
                                     docker rm \$CONTAINER_IDS
@@ -174,7 +174,7 @@ pipeline {
                             // Deploy using image from ECR
                             sh """
                                 ssh -o StrictHostKeyChecking=no ec2-user@${serverIP} '
-                                    CONTAINER_IDS=\$(docker ps -a --filter name=${env.CONTAINER_NAME} --format "{{.ID}}")
+                                    CONTAINER_IDS=\$(docker ps -a --filter name=${env.IMAGE_NAME} --format "{{.ID}}")
                                     if [ ! -z "\$CONTAINER_IDS" ]; then
                                         docker stop \$CONTAINER_IDS
                                         docker rm \$CONTAINER_IDS
