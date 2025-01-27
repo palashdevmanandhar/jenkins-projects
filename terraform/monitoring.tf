@@ -1,8 +1,5 @@
 resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
-<<<<<<< HEAD
   provider            = aws.region1
-=======
->>>>>>> 7bf7d7bc134047c541c195bd1eb99ef9206cbb52
   alarm_name          = "scale-up-alarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 2
