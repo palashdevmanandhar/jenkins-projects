@@ -146,21 +146,25 @@ resource "aws_launch_template" "prod_server_lt" {
               aws ecr get-login-password --region ${var.region1} | docker login --username AWS --password-stdin ${aws_ecr_repository.react_image_repo.repository_url}
 
 
-              # Check if the image with the 'latest' tag exists in the ECR repository
-              IMAGE_EXISTS=$(aws ecr describe-images --repository-name ${aws_ecr_repository.react_image_repo.name} \
+              # Check if the image exists in ECR
+              if aws ecr describe-images \
+                --repository-name ${var.project_name}-repo \
                 --region ${var.region1} \
-                --query 'imageDetails[?imageTags[?@==`latest`]]' | wc -l)
-
-              if [ "$IMAGE_EXISTS" -gt 0 ]; then
-                echo "Docker image exists. Proceeding to pull and run the image."
-
-                # Pull Docker image from ECR
+                --image-ids imageTag=latest >/dev/null 2>&1; then
+                
+                # Pull the latest image from ECR
                 docker pull ${aws_ecr_repository.react_image_repo.repository_url}:latest
-
-                # Run the Docker container
-                docker run -d --name react-app -p 80:3000 ${aws_ecr_repository.react_image_repo.repository_url}:latest
+                
+                # Run the container
+                docker run -d \
+                  --name react-app \
+                  --restart unless-stopped \
+                  -p 80:80 \
+                  ${aws_ecr_repository.react_image_repo.repository_url}:latest
+                  
+                echo "Container started successfully"
               else
-                echo "Docker image with the 'latest' tag does not exist in the ECR repository. Exiting."
+                echo "No image found in ECR repository with tag 'latest'"
               fi
               
               # Restart docker to ensure group changes take effect
@@ -242,7 +246,7 @@ resource "aws_autoscaling_policy" "prod_scale_down" {
   name                   = "scale-down"
   scaling_adjustment     = -1
   adjustment_type        = "ChangeInCapacity"
-  cooldown               = 300
+  cooldown               = 600
   autoscaling_group_name = aws_autoscaling_group.web_server_asg.name
 }
 
