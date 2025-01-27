@@ -145,6 +145,24 @@ resource "aws_launch_template" "prod_server_lt" {
               # Get ECR authentication token and login
               aws ecr get-login-password --region ${var.region1} | docker login --username AWS --password-stdin ${aws_ecr_repository.react_image_repo.repository_url}
 
+
+              # Check if the image with the 'latest' tag exists in the ECR repository
+              IMAGE_EXISTS=$(aws ecr describe-images --repository-name ${aws_ecr_repository.react_image_repo.name} \
+                --region ${var.region1} \
+                --query 'imageDetails[?imageTags[?@==`latest`]]' | wc -l)
+
+              if [ "$IMAGE_EXISTS" -gt 0 ]; then
+                echo "Docker image exists. Proceeding to pull and run the image."
+
+                # Pull Docker image from ECR
+                docker pull ${aws_ecr_repository.react_image_repo.repository_url}:latest
+
+                # Run the Docker container
+                docker run -d --name react-app -p 80:3000 ${aws_ecr_repository.react_image_repo.repository_url}:latest
+              else
+                echo "Docker image with the 'latest' tag does not exist in the ECR repository. Exiting."
+              fi
+              
               # Restart docker to ensure group changes take effect
               systemctl restart docker
               EOF
