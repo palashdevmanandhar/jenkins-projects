@@ -37,3 +37,6 @@ terraform/.terraform
 
 # Ignore secret keys
 /keys
+
+# Ignore ansible variables files with secret
+ansible/aws-access.yml
