@@ -7,6 +7,12 @@ resource "aws_ecr_repository" "react_image_repo" {
     scan_on_push = true
   }
 
+  lifecycle {
+    prevent_destroy = false
+  }
+
+  force_delete = true
+
   tags = {
     Name    = "${var.project_name}-repo"
     project = var.project_name

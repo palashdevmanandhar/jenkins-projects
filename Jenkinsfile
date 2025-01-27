@@ -174,6 +174,9 @@ pipeline {
                             // Deploy using image from ECR
                             sh """
                                 ssh -o StrictHostKeyChecking=no ec2-user@${serverIP} '
+                                    # First authenticate with ECR
+                                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                                    
                                     CONTAINER_IDS=\$(docker ps -a --filter name=${env.IMAGE_NAME} --format "{{.ID}}")
                                     if [ ! -z "\$CONTAINER_IDS" ]; then
                                         docker stop \$CONTAINER_IDS
