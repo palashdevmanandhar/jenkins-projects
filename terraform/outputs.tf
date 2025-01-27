@@ -30,7 +30,7 @@ output "alb_dns" {
 }
 
 
-output "ecr_repository_url"{
+output "ecr_repository_url" {
   value       = aws_ecr_repository.react_image_repo.repository_url
   description = "Check alb dns"
 }
