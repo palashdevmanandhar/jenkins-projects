@@ -87,7 +87,6 @@ pipeline {
                 }
             }
         }
-
         stage('Initialize') {
             steps {
                 script {
@@ -202,6 +201,10 @@ pipeline {
     post {
         always {
             cleanWs()
+            script {
+                // Clean up local Docker image
+                sh "rm -f ${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar || true"
+            }
         }
         failure {
             script {
