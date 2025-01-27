@@ -1,4 +1,8 @@
 resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
+<<<<<<< HEAD
+  provider            = aws.region1
+=======
+>>>>>>> 7bf7d7bc134047c541c195bd1eb99ef9206cbb52
   alarm_name          = "scale-up-alarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 2
@@ -23,7 +27,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
   evaluation_periods  = 2
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = 30
+  period              = 600
   statistic           = "Average"
   threshold           = 33 # Trigger when CPU utilization is 75% or higher
   alarm_description   = "Alarm to scale down instances when CPU utilization goes down below 33%"

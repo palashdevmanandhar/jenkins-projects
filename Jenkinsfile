@@ -58,7 +58,11 @@ pipeline {
         CONTAINER_PORT = "80"
         HOST_PORT = "80"
         SSH_CREDS = credentials('jenkins-ssh-key')
-        DEPLOY_DIR = "/opt/deployments"  // New deployment directory
+        DEPLOY_DIR = "/opt/deployments"
+        AWS_REGION = "us-east-1"
+        AWS_ACCOUNT_ID = ""
+        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        ECR_REPOSITORY = "react-jenkins-project-repo"
     }
     stages {
         // Previous stages remain the same until Deploy Development
@@ -86,65 +90,67 @@ pipeline {
         stage('Initialize') {
             steps {
                 script {
-                    env.IMAGE_TAG = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    env.IMAGE_TAG = "${env.BUILD_NUMBER}"
+                    env.FULL_IMAGE_NAME = "${ECR_REGISTRY}/${ECR_REPOSITORY}:${env.IMAGE_TAG}"
                     env.CONTAINER_NAME = "${IMAGE_NAME}-${env.BUILD_NUMBER}"
-                    echo "Using Docker image tag: ${env.IMAGE_TAG}"
+                    echo "Using Docker image: ${env.FULL_IMAGE_NAME}"
                 }
             }
         }
+        
+
         stage('Checkout') {
             steps {
                 echo "Checking out the code"
                 checkout scm
             }
         }
+        
+
         stage('Build Docker Image') {
             steps {
                 echo "Building Docker image"
                 script {
-                    sh "docker build -t ${env.IMAGE_TAG} --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} ."
+                    sh "docker build -t ${env.FULL_IMAGE_NAME} --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} ."
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                script {
+                    withAWS(region: "${AWS_REGION}", credentials: 'aws-credentials') {
+                        sh """
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                            docker push ${env.FULL_IMAGE_NAME}
+                        """
+                    }
                 }
             }
         }
         
-        stage('Deploy Development') {
+         stage('Deploy Development') {
             steps {
                 script {
                     sshagent(['jenkins-ssh-key']) {
-                        // Create deployment directory if it doesn't exist
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ec2-user@${env.SERVER_DEV} '
-                                sudo mkdir -p ${env.DEPLOY_DIR}
-                                sudo chown ec2-user:ec2-user ${env.DEPLOY_DIR}
-                            '
-                        """
-                        
-                        // Clean up before deployment
-                        cleanupRemoteServer(env.SERVER_DEV)
-                        
                         // Stop and remove existing containers
                         sh """
                             ssh -o StrictHostKeyChecking=no ec2-user@${env.SERVER_DEV} '
-                                CONTAINER_IDS=\$(docker ps -a --filter name=${env.IMAGE_NAME} --format "{{.ID}}")
+                                CONTAINER_IDS=\$(docker ps -a --filter name=${env.CONTAINER_NAME} --format "{{.ID}}")
                                 if [ ! -z "\$CONTAINER_IDS" ]; then
                                     docker stop \$CONTAINER_IDS
                                     docker rm \$CONTAINER_IDS
                                 fi
-                            '
-                        """
-                        
-                        // Transfer and deploy new container
-                        sh """
-                            docker save ${env.IMAGE_TAG} > ${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar
-                            scp ${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar ec2-user@${env.SERVER_DEV}:${env.DEPLOY_DIR}/
-                            ssh ec2-user@${env.SERVER_DEV} '
-                                docker load < ${env.DEPLOY_DIR}/${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar && \
+                                
+                                # Pull latest image from ECR
+                                docker pull ${env.FULL_IMAGE_NAME}
+                                
+                                # Run new container
                                 docker run -d \
                                     --name ${env.CONTAINER_NAME} \
                                     -p ${env.HOST_PORT}:${env.CONTAINER_PORT} \
                                     --restart unless-stopped \
-                                    ${env.IMAGE_TAG}
-                                rm ${env.DEPLOY_DIR}/${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar
+                                    ${env.FULL_IMAGE_NAME}
                             '
                         """
                     }
@@ -162,39 +168,27 @@ pipeline {
                     prodServerList.each { serverIP ->
                         echo "Deploying to production server: ${serverIP}"
                         sshagent(['jenkins-ssh-key']) {
-                            // Create deployment directory
-                            sh """
-                                ssh -o StrictHostKeyChecking=no ec2-user@${serverIP} '
-                                    sudo mkdir -p ${env.DEPLOY_DIR}
-                                    sudo chown ec2-user:ec2-user ${env.DEPLOY_DIR}
-                                '
-                            """
-                            
                             // Clean up before deployment
                             cleanupRemoteServer(serverIP)
                             
-                            // Stop and remove existing containers
+                            // Deploy using image from ECR
                             sh """
                                 ssh -o StrictHostKeyChecking=no ec2-user@${serverIP} '
-                                    CONTAINER_IDS=\$(docker ps -a --filter name=${env.IMAGE_NAME} --format "{{.ID}}")
+                                    CONTAINER_IDS=\$(docker ps -a --filter name=${env.CONTAINER_NAME} --format "{{.ID}}")
                                     if [ ! -z "\$CONTAINER_IDS" ]; then
                                         docker stop \$CONTAINER_IDS
                                         docker rm \$CONTAINER_IDS
                                     fi
-                                '
-                            """
-                            
-                            // Transfer and deploy new container
-                            sh """
-                                scp ${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar ec2-user@${serverIP}:${env.DEPLOY_DIR}/
-                                ssh ec2-user@${serverIP} '
-                                    docker load < ${env.DEPLOY_DIR}/${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar && \
+                                    
+                                    # Pull latest image from ECR
+                                    docker pull ${env.FULL_IMAGE_NAME}
+                                    
+                                    # Run new container
                                     docker run -d \
                                         --name ${env.CONTAINER_NAME} \
                                         -p ${env.HOST_PORT}:${env.CONTAINER_PORT} \
                                         --restart unless-stopped \
-                                        ${env.IMAGE_TAG}
-                                    rm ${env.DEPLOY_DIR}/${env.IMAGE_NAME}-${env.BUILD_NUMBER}.tar
+                                        ${env.FULL_IMAGE_NAME}
                                 '
                             """
                         }

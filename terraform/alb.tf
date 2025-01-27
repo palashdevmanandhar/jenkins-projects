@@ -122,6 +122,11 @@ resource "aws_launch_template" "prod_server_lt" {
 
   key_name = aws_key_pair.key_pair_region1.key_name
 
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2_ecr_profile.name
+  }
+
+
   user_data = base64encode(<<-EOF
               #!/bin/bash
               # Install docker
@@ -136,6 +141,9 @@ resource "aws_launch_template" "prod_server_lt" {
 
               # Add ec2-user to docker group
               usermod -aG docker ec2-user
+
+              # Get ECR authentication token and login
+              aws ecr get-login-password --region ${var.region1} | docker login --username AWS --password-stdin ${aws_ecr_repository.react_image_repo.repository_url}
 
               # Restart docker to ensure group changes take effect
               systemctl restart docker
