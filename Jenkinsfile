@@ -60,7 +60,7 @@ pipeline {
         SSH_CREDS = credentials('jenkins-ssh-key')
         DEPLOY_DIR = "/opt/deployments"
         AWS_REGION = "us-east-1"
-        AWS_ACCOUNT_ID = "637423494924"
+        AWS_ACCOUNT_ID = "452303021915"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECR_REPOSITORY = "react-jenkins-project-repo"
     }
