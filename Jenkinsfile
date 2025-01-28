@@ -103,6 +103,7 @@ pipeline {
                     }
                     env.IMAGE_TAG = "${env.BUILD_NUMBER}"
                     env.FULL_IMAGE_NAME = "${ECR_REGISTRY}/${ECR_REPOSITORY}:${env.IMAGE_TAG}"
+                    env.LATEST_IMAGE_NAME = "${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
                     env.CONTAINER_NAME = "${IMAGE_NAME}-${env.BUILD_NUMBER}"
                     echo "Using Docker image: ${env.FULL_IMAGE_NAME}"
                 }
@@ -122,7 +123,7 @@ pipeline {
             steps {
                 echo "Building Docker image"
                 script {
-                    sh "docker build -t ${env.FULL_IMAGE_NAME} --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} ."
+                    sh "docker build -t ${env.FULL_IMAGE_NAME} -t ${env.LATEST_IMAGE_NAME} --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} ."
                 }
             }
         }
@@ -134,6 +135,7 @@ pipeline {
                         sh """
                             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
                             docker push ${env.FULL_IMAGE_NAME}
+                            docker push ${env.LATEST_IMAGE_NAME}
                         """
                     }
                 }

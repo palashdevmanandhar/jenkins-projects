@@ -152,7 +152,7 @@ resource "aws_launch_template" "prod_server_lt" {
               # Pull the latest image from ECR
               ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
               IMAGE_REPO_NAME=${var.repo_name}
-              docker pull $ACCOUNT_ID.dkr.ecr.${var.region1}.amazonaws.com/$IMAGE_REPO_NAME:1
+              docker pull $ACCOUNT_ID.dkr.ecr.${var.region1}.amazonaws.com/$IMAGE_REPO_NAME:latest
                 
               
               docker run -d \
