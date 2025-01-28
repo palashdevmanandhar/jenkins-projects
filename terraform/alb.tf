@@ -115,6 +115,8 @@ resource "aws_launch_template" "prod_server_lt" {
   image_id      = var.aws_ami_id_region1
   instance_type = "t2.micro"
 
+  update_default_version = true
+
   network_interfaces {
     associate_public_ip_address = true
     security_groups             = [aws_security_group.prod_sg.id]
@@ -142,33 +144,25 @@ resource "aws_launch_template" "prod_server_lt" {
               # Add ec2-user to docker group
               usermod -aG docker ec2-user
 
+              # Restart docker to ensure group changes take effect
+              systemctl restart docker
+
               # Get ECR authentication token and login
               aws ecr get-login-password --region ${var.region1} | docker login --username AWS --password-stdin ${aws_ecr_repository.react_image_repo.repository_url}
 
 
-              # Check if the image exists in ECR
-              if aws ecr describe-images \
-                --repository-name ${var.project_name}-repo \
-                --region ${var.region1} \
-                --image-ids imageTag=latest >/dev/null 2>&1; then
+              # Pull the latest image from ECR
+              ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+              IMAGE_REPO_NAME=${var.repo_name}
+              docker pull $ACCOUNT_ID.dkr.ecr.${var.region1}.amazonaws.com/$IMAGE_REPO_NAME:latest
                 
-                # Pull the latest image from ECR
-                docker pull ${aws_ecr_repository.react_image_repo.repository_url}:latest
-                
-                # Run the container
-                docker run -d \
-                  --name react-app \
-                  --restart unless-stopped \
-                  -p 80:80 \
-                  ${aws_ecr_repository.react_image_repo.repository_url}:latest
-                  
-                echo "Container started successfully"
-              else
-                echo "No image found in ECR repository with tag 'latest'"
-              fi
               
-              # Restart docker to ensure group changes take effect
-              systemctl restart docker
+              docker run -d \
+              --name react-app \
+              --restart unless-stopped \
+              -p 80:80 \
+              $ACCOUNT_ID.dkr.ecr.${var.region1}.amazonaws.com/$IMAGE_REPO_NAME:latest
+                  
               EOF
   )
 

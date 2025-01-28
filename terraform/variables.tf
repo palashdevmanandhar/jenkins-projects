@@ -61,3 +61,10 @@ variable "project_name" {
   default     = "react-jenkins-project"
   description = "description"
 }
+
+
+variable "repo_name" {
+  type        = string
+  default     = "react-jenkins-project-repo"
+  description = "description"
+}

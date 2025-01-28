@@ -35,7 +35,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          new  change
+          latest version
         </a>
       </header>
     </div>
