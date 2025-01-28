@@ -115,6 +115,8 @@ resource "aws_launch_template" "prod_server_lt" {
   image_id      = var.aws_ami_id_region1
   instance_type = "t2.micro"
 
+  update_default_version = true
+
   network_interfaces {
     associate_public_ip_address = true
     security_groups             = [aws_security_group.prod_sg.id]
@@ -159,7 +161,7 @@ resource "aws_launch_template" "prod_server_lt" {
               --name react-app \
               --restart unless-stopped \
               -p 80:80 \
-              $ACCOUNT_ID.dkr.ecr.${var.region1}.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+              $ACCOUNT_ID.dkr.ecr.${var.region1}.amazonaws.com/$IMAGE_REPO_NAME:latest
                   
               EOF
   )
