@@ -1,6 +1,6 @@
 resource "aws_ecr_repository" "react_image_repo" {
   provider             = aws.region1
-  name                 = "${var.project_name}-repo"
+  name                 = "${var.repo_name}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -14,7 +14,7 @@ resource "aws_ecr_repository" "react_image_repo" {
   force_delete = true
 
   tags = {
-    Name    = "${var.project_name}-repo"
+    Name    = "${var.repo_name}"
     project = var.project_name
     region  = var.region1
   }
