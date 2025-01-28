@@ -60,8 +60,6 @@ pipeline {
         SSH_CREDS = credentials('jenkins-ssh-key')
         DEPLOY_DIR = "/opt/deployments"
         AWS_REGION = "us-east-1"
-        AWS_ACCOUNT_ID = "452303021915"
-        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         ECR_REPOSITORY = "react-jenkins-project-repo"
     }
     stages {
@@ -90,6 +88,19 @@ pipeline {
         stage('Initialize') {
             steps {
                 script {
+                    withAWS(region: "${AWS_REGION}", credentials: 'aws-credentials') {
+                        // Get AWS Account ID
+                        env.AWS_ACCOUNT_ID = sh(
+                            script: 'aws sts get-caller-identity --query "Account" --output text',
+                            returnStdout: true
+                        ).trim()
+                        
+                        // Set ECR registry after getting account ID
+                        env.ECR_REGISTRY = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                        
+                        echo "Retrieved AWS Account ID: ${env.AWS_ACCOUNT_ID}"
+                        echo "ECR Registry: ${env.ECR_REGISTRY}"
+                    }
                     env.IMAGE_TAG = "${env.BUILD_NUMBER}"
                     env.FULL_IMAGE_NAME = "${ECR_REGISTRY}/${ECR_REPOSITORY}:${env.IMAGE_TAG}"
                     env.CONTAINER_NAME = "${IMAGE_NAME}-${env.BUILD_NUMBER}"
@@ -136,6 +147,10 @@ pipeline {
                         // Stop and remove existing containers
                         sh """
                             ssh -o StrictHostKeyChecking=no ec2-user@${env.SERVER_DEV} '
+
+                                # First authenticate with ECR
+                                aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+
                                 CONTAINER_IDS=\$(docker ps -a --filter name=${env.IMAGE_NAME} --format "{{.ID}}")
                                 if [ ! -z "\$CONTAINER_IDS" ]; then
                                     docker stop \$CONTAINER_IDS
