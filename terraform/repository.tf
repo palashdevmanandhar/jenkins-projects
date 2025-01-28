@@ -1,6 +1,6 @@
 resource "aws_ecr_repository" "react_image_repo" {
   provider             = aws.region1
-  name                 = "${var.repo_name}"
+  name                 = var.repo_name
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
