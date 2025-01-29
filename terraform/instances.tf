@@ -283,34 +283,36 @@ resource "aws_security_group" "sg_region2" {
   }
 }
 
-resource "aws_instance" "jenkins_node1" {
-  provider                    = aws.region2
-  ami                         = var.aws_ami_id_region2
-  instance_type               = "t2.medium"
-  associate_public_ip_address = true
-  subnet_id                   = aws_subnet.public_subnet_region2.id
 
-  # Security Group (optional, add an existing SG or use Terraform to create one)
-  vpc_security_group_ids = [aws_security_group.sg_region2.id]
+# Resource for jenkins worker node in a different region
+# resource "aws_instance" "jenkins_node1" {
+#   provider                    = aws.region2
+#   ami                         = var.aws_ami_id_region2
+#   instance_type               = "t2.medium"
+#   associate_public_ip_address = true
+#   subnet_id                   = aws_subnet.public_subnet_region2.id
 
-  # Key Pair for SSH Access
-  key_name = aws_key_pair.key_pair_region2.key_name
+#   # Security Group (optional, add an existing SG or use Terraform to create one)
+#   vpc_security_group_ids = [aws_security_group.sg_region2.id]
 
-  # Add a basic block device (root volume)
-  root_block_device {
-    volume_size = 20 # 8GB root volume
-    volume_type = "gp3"
-  }
+#   # Key Pair for SSH Access
+#   key_name = aws_key_pair.key_pair_region2.key_name
 
-  # Add Tags
-  tags = {
-    Name     = "jenkins_node1"
-    project  = var.project_name
-    function = "jenkins"
-    region   = var.region2
-    type     = "node"
-  }
-}
+#   # Add a basic block device (root volume)
+#   root_block_device {
+#     volume_size = 20 # 8GB root volume
+#     volume_type = "gp3"
+#   }
+
+#   # Add Tags
+#   tags = {
+#     Name     = "jenkins_node1"
+#     project  = var.project_name
+#     function = "jenkins"
+#     region   = var.region2
+#     type     = "node"
+#   }
+# }
 
 
 ######### End of instances for Region2 ########
