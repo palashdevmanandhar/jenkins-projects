@@ -1,0 +1,239 @@
+[H[J[1;1H[H[J[1;1H  Booting `Amazon Linux (6.1.119-129.201.amzn2023.x86_64) 2023'
+
+
+[    0.049608] Cannot get hvm parameter CONSOLE_EVTCHN (18): -22!
+[    0.278398] Cannot get hvm parameter CONSOLE_EVTCHN (18): -22!
+[    5.073144] device-mapper: core: CONFIG_IMA_DISABLE_HTABLE is disabled. Duplicate IMA measurements will not be recorded in the IMA log.
+[    5.075302] device-mapper: uevent: version 1.0.3
+[    5.095186] fuse: init (API version 7.38)
+[    5.117357] loop: module loaded
+[    5.119604] device-mapper: ioctl: 4.47.0-ioctl (2022-07-28) initialised: dm-devel@redhat.com
+[    5.137800] kauditd_printk_skb: 104 callbacks suppressed
+[    5.137802] audit: type=1130 audit(1738063688.340:113): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=systemd-remount-fs comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+[    5.149939] audit: type=1130 audit(1738063688.350:114): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=modprobe@dm_mod comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+[    5.154390] audit: type=1131 audit(1738063688.350:115): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=modprobe@dm_mod comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+[    5.166448] audit: type=1130 audit(1738063688.370:116): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=modprobe@fuse comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+[    5.170895] audit: type=1131 audit(1738063688.370:117): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=modprobe@fuse comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+[    5.176244] audit: type=1130 audit(1738063688.380:118): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=modprobe@loop comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+[    5.180632] audit: type=1131 audit(1738063688.380:119): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=modprobe@loop comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+[    5.197191] audit: type=1130 audit(1738063688.400:120): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=systemd-udev-trigger comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+[    5.243131] systemd-journald[1094]: Received client request to flush runtime journal.
+[    5.266239] audit: type=1130 audit(1738063688.470:121): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=systemd-random-seed comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+[    5.285650] audit: type=1130 audit(1738063688.490:122): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=systemd-journal-flush comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+[    5.820870] input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input0
+[    5.846189] vif vif-0 enX0: renamed from eth0
+[    5.872434] ACPI: button: Power Button [PWRF]
+[    5.873597] input: Sleep Button as /devices/LNXSYSTM:00/LNXSLPBN:00/input/input1
+[    5.907324] i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+[    5.910069] i8042: Warning: Keylock active
+[    5.920019] ACPI: button: Sleep Button [SLPF]
+[    5.951359] serio: i8042 KBD port at 0x60,0x64 irq 1
+[    5.953033] serio: i8042 AUX port at 0x60,0x64 irq 12
+[    5.955842] SCSI subsystem initialized
+[    6.045479] libata version 3.00 loaded.
+[    6.122465] ata_piix 0000:00:01.1: version 2.13
+[    6.140182] scsi host0: ata_piix
+[    6.154009] scsi host1: ata_piix
+[    6.155420] ata1: PATA max MWDMA2 cmd 0x1f0 ctl 0x3f6 bmdma 0xc000 irq 14
+[    6.155423] ata2: PATA max MWDMA2 cmd 0x170 ctl 0x376 bmdma 0xc008 irq 15
+[    6.168988] RPC: Registered named UNIX socket transport module.
+[    6.168989] RPC: Registered udp transport module.
+[    6.168990] RPC: Registered tcp transport module.
+[    6.168991] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    6.246029] zram_generator::config[1909]: zram0: system has too much memory (949MB), limit is 800MB, ignoring.
+[    8.084007] cloud-init[2092]: Cloud-init v. 22.2.2 running 'init' at Tue, 28 Jan 2025 11:28:11 +0000. Up 8.01 seconds.
+[    8.222153] cloud-init[2092]: ci-info: +++++++++++++++++++++++++++++++++++++Net device info++++++++++++++++++++++++++++++++++++++
+[    8.223795] cloud-init[2092]: ci-info: +--------+------+---------------------------+---------------+--------+-------------------+
+[    8.225313] cloud-init[2092]: ci-info: | Device |  Up  |          Address          |      Mask     | Scope  |     Hw-Address    |
+[    8.227008] cloud-init[2092]: ci-info: +--------+------+---------------------------+---------------+--------+-------------------+
+[    8.228506] cloud-init[2092]: ci-info: |  enX0  | True |         10.0.2.127        | 255.255.255.0 | global | 02:23:6a:99:0b:19 |
+[    8.229989] cloud-init[2092]: ci-info: |  enX0  | True | fe80::23:6aff:fe99:b19/64 |       .       |  link  | 02:23:6a:99:0b:19 |
+[    8.231829] cloud-init[2092]: ci-info: |   lo   | True |         127.0.0.1         |   255.0.0.0   |  host  |         .         |
+[    8.233501] cloud-init[2092]: ci-info: |   lo   | True |          ::1/128          |       .       |  host  |         .         |
+[    8.235392] cloud-init[2092]: ci-info: +--------+------+---------------------------+---------------+--------+-------------------+
+[    8.237911] cloud-init[2092]: ci-info: ++++++++++++++++++++++++++++Route IPv4 info+++++++++++++++++++++++++++++
+[    8.239300] cloud-init[2092]: ci-info: +-------+-------------+----------+-----------------+-----------+-------+
+[    8.241053] cloud-init[2092]: ci-info: | Route | Destination | Gateway  |     Genmask     | Interface | Flags |
+[    8.242803] cloud-init[2092]: ci-info: +-------+-------------+----------+-----------------+-----------+-------+
+[    8.244205] cloud-init[2092]: ci-info: |   0   |   0.0.0.0   | 10.0.2.1 |     0.0.0.0     |    enX0   |   UG  |
+[    8.245695] cloud-init[2092]: ci-info: |   1   |   10.0.0.2  | 10.0.2.1 | 255.255.255.255 |    enX0   |  UGH  |
+[    8.247471] cloud-init[2092]: ci-info: |   2   |   10.0.2.0  | 0.0.0.0  |  255.255.255.0  |    enX0   |   U   |
+[    8.250062] cloud-init[2092]: ci-info: |   3   |   10.0.2.1  | 0.0.0.0  | 255.255.255.255 |    enX0   |   UH  |
+[    8.251406] cloud-init[2092]: ci-info: +-------+-------------+----------+-----------------+-----------+-------+
+[    8.252697] cloud-init[2092]: ci-info: +++++++++++++++++++Route IPv6 info+++++++++++++++++++
+[    8.253825] cloud-init[2092]: ci-info: +-------+-------------+---------+-----------+-------+
+[    8.255002] cloud-init[2092]: ci-info: | Route | Destination | Gateway | Interface | Flags |
+[    8.256122] cloud-init[2092]: ci-info: +-------+-------------+---------+-----------+-------+
+[    8.257217] cloud-init[2092]: ci-info: |   0   |  fe80::/64  |    ::   |    enX0   |   U   |
+[    8.258500] cloud-init[2092]: ci-info: |   2   |    local    |    ::   |    enX0   |   U   |
+[    8.260074] cloud-init[2092]: ci-info: |   3   |  multicast  |    ::   |    enX0   |   U   |
+[    8.261191] cloud-init[2092]: ci-info: +-------+-------------+---------+-----------+-------+
+[    9.708504] cloud-init[2092]: Generating public/private ed25519 key pair.
+[    9.710160] cloud-init[2092]: Your identification has been saved in /etc/ssh/ssh_host_ed25519_key
+[    9.711331] cloud-init[2092]: Your public key has been saved in /etc/ssh/ssh_host_ed25519_key.pub
+[    9.712463] cloud-init[2092]: The key fingerprint is:
+[    9.713143] cloud-init[2092]: SHA256:9FMUMQyoAa8oYSiAQAl/DH6P6h/nI2RHuP+HmnnOj1Q root@ip-10-0-2-127.ec2.internal
+[    9.720184] cloud-init[2092]: The key's randomart image is:
+[    9.730232] cloud-init[2092]: +--[ED25519 256]--+
+[    9.731157] cloud-init[2092]: |O.o ..   ..o=o   |
+[    9.731818] cloud-init[2092]: |++ o .. .  ...   |
+[    9.732461] cloud-init[2092]: |+.o +..o.   .    |
+[    9.733104] cloud-init[2092]: |o. +.+o. . .     |
+[    9.733777] cloud-init[2092]: |. . oo. S E      |
+[    9.734431] cloud-init[2092]: | . .+ .  . .     |
+[    9.735082] cloud-init[2092]: |  .o.o. ..       |
+[    9.740099] cloud-init[2092]: | .  .+o=o..      |
+[    9.741159] cloud-init[2092]: |  ....=*=o.      |
+[    9.741807] cloud-init[2092]: +----[SHA256]-----+
+[    9.742440] cloud-init[2092]: Generating public/private ecdsa key pair.
+[    9.743312] cloud-init[2092]: Your identification has been saved in /etc/ssh/ssh_host_ecdsa_key
+[    9.744425] cloud-init[2092]: Your public key has been saved in /etc/ssh/ssh_host_ecdsa_key.pub
+[    9.750045] cloud-init[2092]: The key fingerprint is:
+[    9.750748] cloud-init[2092]: SHA256:fxdQblsvsCUBhpaHvnDUFxw5jZzzwRs+JyUFjGBRH0s root@ip-10-0-2-127.ec2.internal
+[    9.752052] cloud-init[2092]: The key's randomart image is:
+[    9.752782] cloud-init[2092]: +---[ECDSA 256]---+
+[    9.753426] cloud-init[2092]: |         =*B=@Eo.|
+[    9.760119] cloud-init[2092]: |        *oo @*Bo.|
+[    9.761085] cloud-init[2092]: |       + . .+=**.|
+[    9.761743] cloud-init[2092]: |      . o    B*oo|
+[    9.762399] cloud-init[2092]: |       oS.  . ++.|
+[    9.763054] cloud-init[2092]: |        ..     o |
+[    9.763714] cloud-init[2092]: |          . . .  |
+[    9.764359] cloud-init[2092]: |           . .   |
+[    9.765011] cloud-init[2092]: |                 |
+[    9.770058] cloud-init[2092]: +----[SHA256]-----+
+[   10.733214] cloud-init[2180]: Cloud-init v. 22.2.2 running 'modules:config' at Tue, 28 Jan 2025 11:28:13 +0000. Up 10.56 seconds.
+[   11.815227] cloud-init[2190]: Cloud-init v. 22.2.2 running 'modules:final' at Tue, 28 Jan 2025 11:28:14 +0000. Up 11.70 seconds.
+[   14.419917] cloud-init[2190]: Amazon Linux 2023 repository                     26 MB/s |  30 MB     00:01
+
+
+Amazon Linux 2023.6.20250114
+Kernel 6.1.119-129.201.amzn2023.x86_64 on an x86_64 (-)
+
+ip-10-0-2-127 login: [   27.025770] cloud-init[2190]: Amazon Linux 2023 Kernel Livepatch repository    73 kB/s |  11 kB     00:00
+[   27.832754] cloud-init[2190]: Dependencies resolved.
+[   27.852807] cloud-init[2190]: ================================================================================
+[   27.854166] cloud-init[2190]:  Package                  Arch     Version                  Repository     Size
+[   27.855412] cloud-init[2190]: ================================================================================
+[   27.856689] cloud-init[2190]: Installing:
+[   27.857228] cloud-init[2190]:  docker                   x86_64   25.0.6-1.amzn2023.0.2    amazonlinux    44 M
+[   27.858479] cloud-init[2190]: Installing dependencies:
+[   27.859147] cloud-init[2190]:  containerd               x86_64   1.7.23-1.amzn2023.0.1    amazonlinux    36 M
+[   27.862588] cloud-init[2190]:  iptables-libs            x86_64   1.8.8-3.amzn2023.0.2     amazonlinux   401 k
+[   27.864340] cloud-init[2190]:  iptables-nft             x86_64   1.8.8-3.amzn2023.0.2     amazonlinux   183 k
+[   27.870036] cloud-init[2190]:  libcgroup                x86_64   3.0-1.amzn2023.0.1       amazonlinux    75 k
+[   27.871301] cloud-init[2190]:  libnetfilter_conntrack   x86_64   1.0.8-2.amzn2023.0.2     amazonlinux    58 k
+[   27.872559] cloud-init[2190]:  libnfnetlink             x86_64   1.0.1-19.amzn2023.0.2    amazonlinux    30 k
+[   27.873806] cloud-init[2190]:  libnftnl                 x86_64   1.2.2-2.amzn2023.0.2     amazonlinux    84 k
+[   27.875072] cloud-init[2190]:  pigz                     x86_64   2.5-1.amzn2023.0.3       amazonlinux    83 k
+[   27.876321] cloud-init[2190]:  runc                     x86_64   1.1.14-1.amzn2023.0.1    amazonlinux   3.2 M
+[   27.877540] cloud-init[2190]: Transaction Summary
+[   27.878151] cloud-init[2190]: ================================================================================
+[   27.879406] cloud-init[2190]: Install  10 Packages
+[   27.886980] cloud-init[2190]: Total download size: 84 M
+[   27.887042] cloud-init[2190]: Installed size: 317 M
+[   27.887063] cloud-init[2190]: Downloading Packages:
+[   28.003998] cloud-init[2190]: (1/10): iptables-libs-1.8.8-3.amzn2023.0.2.x86_ 3.7 MB/s | 401 kB     00:00
+[   28.034338] cloud-init[2190]: (2/10): iptables-nft-1.8.8-3.amzn2023.0.2.x86_6 6.4 MB/s | 183 kB     00:00
+[   28.103050] cloud-init[2190]: (3/10): libcgroup-3.0-1.amzn2023.0.1.x86_64.rpm 1.1 MB/s |  75 kB     00:00
+[   28.146737] cloud-init[2190]: (4/10): libnetfilter_conntrack-1.0.8-2.amzn2023 1.4 MB/s |  58 kB     00:00
+[   28.183893] cloud-init[2190]: (5/10): libnfnetlink-1.0.1-19.amzn2023.0.2.x86_ 851 kB/s |  30 kB     00:00
+[   28.225994] cloud-init[2190]: (6/10): libnftnl-1.2.2-2.amzn2023.0.2.x86_64.rp 2.0 MB/s |  84 kB     00:00
+[   28.267829] cloud-init[2190]: (7/10): pigz-2.5-1.amzn2023.0.3.x86_64.rpm      2.1 MB/s |  83 kB     00:00
+[   29.077457] cloud-init[2190]: (8/10): runc-1.1.14-1.amzn2023.0.1.x86_64.rpm   3.9 MB/s | 3.2 MB     00:00
+[   29.570712] cloud-init[2190]: (9/10): containerd-1.7.23-1.amzn2023.0.1.x86_64  21 MB/s |  36 MB     00:01
+[   30.274626] cloud-init[2190]: (10/10): docker-25.0.6-1.amzn2023.0.2.x86_64.rp  19 MB/s |  44 MB     00:02
+[   30.277560] cloud-init[2190]: --------------------------------------------------------------------------------
+[   30.279444] cloud-init[2190]: Total                                            35 MB/s |  84 MB     00:02
+[   31.337073] cloud-init[2190]: Running transaction check
+[   31.373681] cloud-init[2190]: Transaction check succeeded.
+[   31.373997] cloud-init[2190]: Running transaction test
+[   32.478224] cloud-init[2190]: Transaction test succeeded.
+[   32.479597] cloud-init[2190]: Running transaction
+[   33.632092] cloud-init[2190]:   Preparing        :                                                        1/1
+[   34.470710] cloud-init[2190]:   Installing       : runc-1.1.14-1.amzn2023.0.1.x86_64                     1/10
+[   34.477650] cloud-init[2190]:   Installing       : containerd-1.7.23-1.amzn2023.0.1.x86_64               2/10
+[   34.507691] cloud-init[2190]:   Running scriptlet: containerd-1.7.23-1.amzn2023.0.1.x86_64               2/10
+[   34.519761] cloud-init[2190]:   Installing       : pigz-2.5-1.amzn2023.0.3.x86_64                        3/10
+[   34.528461] cloud-init[2190]:   Installing       : libnftnl-1.2.2-2.amzn2023.0.2.x86_64                  4/10
+[   34.536559] cloud-init[2190]:   Installing       : libnfnetlink-1.0.1-19.amzn2023.0.2.x86_64             5/10
+[   34.656939] cloud-init[2190]:   Installing       : libnetfilter_conntrack-1.0.8-2.amzn2023.0.2.x86_64    6/10
+[   34.698452] cloud-init[2190]:   Installing       : iptables-libs-1.8.8-3.amzn2023.0.2.x86_64             7/10
+[   34.705688] cloud-init[2190]:   Installing       : iptables-nft-1.8.8-3.amzn2023.0.2.x86_64              8/10
+[   34.737378] cloud-init[2190]:   Running scriptlet: iptables-nft-1.8.8-3.amzn2023.0.2.x86_64              8/10
+[   34.745212] cloud-init[2190]:   Installing       : libcgroup-3.0-1.amzn2023.0.1.x86_64                   9/10
+[   35.971575] cloud-init[2190]:   Running scriptlet: docker-25.0.6-1.amzn2023.0.2.x86_64                  10/10
+[   35.985811] cloud-init[2190]:   Installing       : docker-25.0.6-1.amzn2023.0.2.x86_64                  10/10
+[   36.010586] cloud-init[2190]:   Running scriptlet: docker-25.0.6-1.amzn2023.0.2.x86_64                  10/10
+[   36.012706] cloud-init[2190]: Created symlink /etc/systemd/system/sockets.target.wants/docker.socket â /usr/lib/systemd/system/docker.socket.
+[   36.464249] zram_generator::config[2435]: zram0: system has too much memory (949MB), limit is 800MB, ignoring.
+[   36.944684] cloud-init[2190]:   Verifying        : containerd-1.7.23-1.amzn2023.0.1.x86_64               1/10
+[   36.944965] cloud-init[2190]:   Verifying        : docker-25.0.6-1.amzn2023.0.2.x86_64                   2/10
+[   36.945072] cloud-init[2190]:   Verifying        : iptables-libs-1.8.8-3.amzn2023.0.2.x86_64             3/10
+[   36.945167] cloud-init[2190]:   Verifying        : iptables-nft-1.8.8-3.amzn2023.0.2.x86_64              4/10
+[   36.953908] cloud-init[2190]:   Verifying        : libcgroup-3.0-1.amzn2023.0.1.x86_64                   5/10
+[   36.956555] cloud-init[2190]:   Verifying        : libnetfilter_conntrack-1.0.8-2.amzn2023.0.2.x86_64    6/10
+[   36.957873] cloud-init[2190]:   Verifying        : libnfnetlink-1.0.1-19.amzn2023.0.2.x86_64             7/10
+[   36.959137] cloud-init[2190]:   Verifying        : libnftnl-1.2.2-2.amzn2023.0.2.x86_64                  8/10
+[   36.961772] cloud-init[2190]:   Verifying        : pigz-2.5-1.amzn2023.0.3.x86_64                        9/10
+[   37.150280] cloud-init[2190]:   Verifying        : runc-1.1.14-1.amzn2023.0.1.x86_64                    10/10================================================================================
+[   37.153741] cloud-init[2190]: WARNING:
+[   37.154315] cloud-init[2190]:   A newer release of "Amazon Linux" is available.
+[   37.155256] cloud-init[2190]:   Available Versions:
+[   37.155921] cloud-init[2190]:   Version 2023.6.20250115:
+[   37.156620] cloud-init[2190]:     Run the following command to upgrade to 2023.6.20250115:
+[   37.157668] cloud-init[2190]:       dnf upgrade --releasever=2023.6.20250115
+[   37.158581] cloud-init[2190]:     Release notes:
+[   37.159204] cloud-init[2190]:      https://docs.aws.amazon.com/linux/al2023/release-notes/relnotes-2023.6.20250115.html
+[   37.170213] cloud-init[2190]:   Version 2023.6.20250123:
+[   37.170289] cloud-init[2190]:     Run the following command to upgrade to 2023.6.20250123:
+[   37.170316] cloud-init[2190]:       dnf upgrade --releasever=2023.6.20250123
+[   37.170337] cloud-init[2190]:     Release notes:
+[   37.170354] cloud-init[2190]:      https://docs.aws.amazon.com/linux/al2023/release-notes/relnotes-2023.6.20250123.html
+[   37.170392] cloud-init[2190]: ================================================================================
+[   37.218600] cloud-init[2190]:  
+[   37.219227] cloud-init[2190]: Installed:
+[   37.219773] cloud-init[2190]:   containerd-1.7.23-1.amzn2023.0.1.x86_64
+[   37.221916] cloud-init[2190]:   docker-25.0.6-1.amzn2023.0.2.x86_64
+[   37.222770] cloud-init[2190]:   iptables-libs-1.8.8-3.amzn2023.0.2.x86_64
+[   37.223639] cloud-init[2190]:   iptables-nft-1.8.8-3.amzn2023.0.2.x86_64
+[   37.224504] cloud-init[2190]:   libcgroup-3.0-1.amzn2023.0.1.x86_64
+[   37.225320] cloud-init[2190]:   libnetfilter_conntrack-1.0.8-2.amzn2023.0.2.x86_64
+[   37.226294] cloud-init[2190]:   libnfnetlink-1.0.1-19.amzn2023.0.2.x86_64
+[   37.227148] cloud-init[2190]:   libnftnl-1.2.2-2.amzn2023.0.2.x86_64
+[   37.227989] cloud-init[2190]:   pigz-2.5-1.amzn2023.0.3.x86_64
+[   37.228754] cloud-init[2190]:   runc-1.1.14-1.amzn2023.0.1.x86_64
+[   37.229561] cloud-init[2190]: Complete!
+[   37.599184] bridge: filtering via arp/ip/ip6tables is no longer available by default. Update your scripts to load br_netfilter if you need this.
+[   37.613001] Bridge firewalling registered
+[   37.869124] Initializing XFRM netlink socket
+[   38.321035] cloud-init[2190]: Created symlink /etc/systemd/system/multi-user.target.wants/docker.service â /usr/lib/systemd/system/docker.service.
+[   38.379889] zram_generator::config[4557]: zram0: system has too much memory (949MB), limit is 800MB, ignoring.
+[   41.369788] cloud-init[2190]: WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+[   41.380278] cloud-init[2190]: Configure a credential helper to remove this warning. See
+[   41.381361] cloud-init[2190]: https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+[   41.381398] cloud-init[2190]: Login Succeeded
+[   42.649864] cloud-init[2190]: Error response from daemon: manifest for 452303021915.dkr.ecr.us-east-1.amazonaws.com/react-jenkins-project-repo:latest not found: manifest unknown: Requested image not found
+[   42.680815] cloud-init[2190]: Unable to find image '452303021915.dkr.ecr.us-east-1.amazonaws.com/react-jenkins-project-repo:latest' locally
+[   42.945668] cloud-init[2190]: docker: Error response from daemon: manifest for 452303021915.dkr.ecr.us-east-1.amazonaws.com/react-jenkins-project-repo:latest not found: manifest unknown: Requested image not found.
+[   42.948087] cloud-init[2190]: See 'docker run --help'.
+[   42.950732] cloud-init[2190]: 2025-01-28 11:28:46,162 - cc_scripts_user.py[WARNING]: Failed to run module scripts-user (scripts in /var/lib/cloud/instance/scripts)
+[   42.960149] cloud-init[2190]: 2025-01-28 11:28:46,162 - util.py[WARNING]: Running module scripts-user (<module 'cloudinit.config.cc_scripts_user' from '/usr/lib/python3.9/site-packages/cloudinit/config/cc_scripts_user.py'>) failed
+ci-info: ++++++++++++++++++++++++++++++++Authorized keys from /home/ec2-user/.ssh/authorized_keys for user ec2-user++++++++++++++++++++++++++++++++
+ci-info: +---------+-------------------------------------------------------------------------------------------------+---------+------------------+
+ci-info: | Keytype |                                       Fingerprint (sha256)                                      | Options |     Comment      |
+ci-info: +---------+-------------------------------------------------------------------------------------------------+---------+------------------+
+ci-info: | ssh-rsa | 6d:f5:04:26:4d:69:12:d0:db:76:34:ab:33:e2:8d:e4:15:78:86:b2:67:9b:9a:98:4a:9b:e6:44:f3:2a:21:1b |    -    | key_pair_region1 |
+ci-info: +---------+-------------------------------------------------------------------------------------------------+---------+------------------+
+<14>Jan 28 11:28:46 cloud-init: #############################################################
+<14>Jan 28 11:28:46 cloud-init: -----BEGIN SSH HOST KEY FINGERPRINTS-----
+<14>Jan 28 11:28:46 cloud-init: 256 SHA256:fxdQblsvsCUBhpaHvnDUFxw5jZzzwRs+JyUFjGBRH0s root@ip-10-0-2-127.ec2.internal (ECDSA)
+<14>Jan 28 11:28:46 cloud-init: 256 SHA256:9FMUMQyoAa8oYSiAQAl/DH6P6h/nI2RHuP+HmnnOj1Q root@ip-10-0-2-127.ec2.internal (ED25519)
+<14>Jan 28 11:28:46 cloud-init: -----END SSH HOST KEY FINGERPRINTS-----
+<14>Jan 28 11:28:46 cloud-init: #############################################################
+-----BEGIN SSH HOST KEY KEYS-----
+ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPu4l65bx3TvbpdJVtMAfm/wkqgE6gdu2eUT0rYjZsaEgy5b2tgrrwN/I4fKIrqhEYsIXPAh5rreiRgEgUXmt+s= root@ip-10-0-2-127.ec2.internal
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB4Lw3BAsidZNApYcJIaZYcap1qM0S3FXhvFZ2HTl0lv root@ip-10-0-2-127.ec2.internal
+-----END SSH HOST KEY KEYS-----
+[   43.084491] cloud-init[2190]: Cloud-init v. 22.2.2 finished at Tue, 28 Jan 2025 11:28:46 +0000. Datasource DataSourceEc2.  Up 43.07 seconds
+[[0;1;31mFAILED[0m] Failed to start [0;1;39mcloud-finaâ¦ Execute cloud user/final scripts.

@@ -191,7 +191,7 @@ resource "aws_autoscaling_group" "web_server_asg" {
   provider = aws.region1
   name     = "web-server-asg"
 
-  desired_capacity = 2
+  desired_capacity = 1
   max_size         = 3
   min_size         = 1
 
