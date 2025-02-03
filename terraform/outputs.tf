@@ -8,10 +8,10 @@ output "ec2_jenkins_control" {
   description = "The public IP of the jenkins EC2 instance"
 }
 
-output "ec2_jenkins_node" {
-  value       = aws_instance.jenkins_node1.public_ip
-  description = "The public IP of the jenkins EC2 instance"
-}
+# output "ec2_jenkins_node" {
+#   value       = aws_instance.jenkins_node1.public_ip
+#   description = "The public IP of the jenkins EC2 instance"
+# }
 
 # output "ec2_public_ip_prod_node1" {
 #   value       = aws_instance.production_instance_node1.public_ip
