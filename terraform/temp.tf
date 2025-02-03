@@ -1,6 +1,59 @@
-# ############ Begining of ALB resources for Region1 ##########
+# # aws provider region for the project
+# variable "region1" {
+#   type        = string
+#   default     = "us-east-1"
+#   description = "virginia region and the default region"
+# }
 
-# # Security Group for ALB
+# variable "region2" {
+#   type        = string
+#   default     = "us-west-2"
+#   description = "oregon region"
+# }
+
+# variable "availability_zone2_region1" {
+#   type        = string
+#   default     = "us-east-1b"
+#   description = "second az region one"
+# }
+
+
+
+# variable "availability_zone_region1" {
+#   type        = string
+#   default     = "us-east-1a"
+#   description = "default az region one"
+# }
+
+# variable "availability_zone_region2" {
+#   type        = string
+#   default     = "us-west-2a"
+#   description = "default az region 2"
+# }
+
+
+
+# variable "deafult_vpc_id" {
+#   type        = string
+#   default     = "vpc-08dc24ade02456138"
+#   description = "id of default vpc"
+# }
+
+
+
+# variable "project_name" {
+#   type        = string
+#   default     = "react-jenkins-project"
+#   description = "description"
+# }
+
+
+
+# variable "my_hosted_zone" {
+#   type    = string
+#   default = "533267232470.realhandsonlabs.net"
+# }
+
 # resource "aws_security_group" "alb_sg" {
 #   provider    = aws.region1
 #   name        = "alb-security-group"
@@ -10,6 +63,13 @@
 #   ingress {
 #     from_port   = 80
 #     to_port     = 80
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+
+#   ingress {
+#     from_port   = 443
+#     to_port     = 443
 #     protocol    = "tcp"
 #     cidr_blocks = ["0.0.0.0/0"]
 #   }
@@ -28,7 +88,6 @@
 #   }
 # }
 
-# # Application Load Balancer in Region 1
 # resource "aws_lb" "alb_region1" {
 #   provider           = aws.region1
 #   name               = "alb-region1"
@@ -71,34 +130,81 @@
 #   }
 # }
 
-# # Register production instances with target group
-# resource "aws_lb_target_group_attachment" "tg_attachment_region1_prod_node1" {
-#   provider         = aws.region1
-#   target_group_arn = aws_lb_target_group.tg_region1.arn
-#   target_id        = aws_instance.production_instance_node1.id
-#   port             = 80
+# data "aws_route53_zone" "main" {
+#   name = "${var.my_hosted_zone}." # Note the trailing dot
 # }
 
-# resource "aws_lb_target_group_attachment" "tg_attachment_region1_prod_node2" {
-#   provider         = aws.region1
-#   target_group_arn = aws_lb_target_group.tg_region1.arn
-#   target_id        = aws_instance.production_instance_node2.id
-#   port             = 80
+# resource "aws_route53_record" "www" {
+#   zone_id = data.aws_route53_zone.main.zone_id
+#   name    = "www.${var.my_hosted_zone}" # Subdomain you want to route
+#   type    = "A"
+
+#   alias {
+#     name                   = aws_lb.alb_region1.dns_name
+#     zone_id                = aws_lb.alb_region1.zone_id
+#     evaluate_target_health = true
+#   }
 # }
 
-# # resource "aws_lb_target_group_attachment" "tg_attachment_region2" {
-# #   provider         = aws.region1
-# #   target_group_arn = aws_lb_target_group.tg_region1.arn
-# #   target_id        = aws_instance.production_instance_region2.id
-# #   port             = 80
-# # }
+# resource "aws_route53_record" "apex" {
+#   zone_id = data.aws_route53_zone.main.zone_id
+#   name    = var.my_hosted_zone
+#   type    = "A"
 
-# # ALB Listener
-# resource "aws_lb_listener" "front_end" {
-#   provider          = aws.region1
+#   alias {
+#     name                   = aws_lb.example.dns_name
+#     zone_id                = aws_lb.example.zone_id
+#     evaluate_target_health = true
+#   }
+# }
+
+# # 1. Request an ACM Certificate
+# resource "aws_acm_certificate" "cert" {
+#   domain_name               = var.my_hosted_zone
+#   subject_alternative_names = ["*.${var.my_hosted_zone}"] # Covers all subdomains
+#   validation_method         = "DNS"
+
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+
+#   tags = {
+#     env     = "prod"
+#     project = var.project_name
+#   }
+# }
+
+# # 2. Create DNS records for ACM validation
+# resource "aws_route53_record" "cert_validation" {
+#   for_each = {
+#     for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+#       name   = dvo.resource_record_name
+#       record = dvo.resource_record_value
+#       type   = dvo.resource_record_type
+#     }
+#   }
+
+#   allow_overwrite = true
+#   name            = each.value.name
+#   records         = [each.value.record]
+#   ttl             = 60
+#   type            = each.value.type
+#   zone_id         = data.aws_route53_zone.main.zone_id
+# }
+
+# # 3. Certificate Validation
+# resource "aws_acm_certificate_validation" "cert" {
+#   certificate_arn         = aws_acm_certificate.cert.arn
+#   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+# }
+
+# # 4. Create HTTPS Listener for ALB
+# resource "aws_lb_listener" "https" {
 #   load_balancer_arn = aws_lb.alb_region1.arn
-#   port              = "80"
-#   protocol          = "HTTP"
+#   port              = "443"
+#   protocol          = "HTTPS"
+#   ssl_policy        = "ELBSecurityPolicy-2016-08"
+#   certificate_arn   = aws_acm_certificate.cert.arn
 
 #   default_action {
 #     type             = "forward"
@@ -106,287 +212,19 @@
 #   }
 # }
 
-# ############ End of ALB resources for Region1 ##########
+# # 5. Optional: HTTP to HTTPS Redirect
+# resource "aws_lb_listener" "http" {
+#   load_balancer_arn = aws_lb.alb_region1.arn
+#   port              = "80"
+#   protocol          = "HTTP"
 
-# ######### Start of instances for Region1 ########
+#   default_action {
+#     type = "redirect"
 
-# resource "aws_key_pair" "key_pair_region1" {
-#   provider   = aws.region1
-#   key_name   = "key_pair_region1" # Replace with your desired key pair name
-#   public_key = file(var.public_key_path)
-
-#   tags = {
-#     project = var.project_name
-#     region  = var.region1
-#   }
-# }
-
-# resource "aws_security_group" "sg_region1" {
-#   provider    = aws.region1
-#   name        = "sg_region1"
-#   description = "Security group allowing SSH (22) and HTTP (80) ingress and all egress"
-#   vpc_id      = aws_vpc.vpc_region1.id # Replace with your VPC ID
-
-#   # Ingress Rules
-#   ingress {
-#     description = "Allow SSH from all"
-#     from_port   = 22
-#     to_port     = 22
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-
-#   ingress {
-#     description = "Allow HTTP from all"
-#     from_port   = 80
-#     to_port     = 80
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-
-#   ingress {
-#     description = "Allow HTTP from all"
-#     from_port   = 8080
-#     to_port     = 8080
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-
-#   # Egress Rules
-#   egress {
-#     description = "Allow all egress"
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1" # "-1" allows all protocols
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-
-#   tags = {
-#     Name    = "sg_region1"
-#     project = var.project_name
-#     region  = var.region1
-#   }
-# }
-
-# resource "aws_security_group" "prod_sg" {
-#   provider    = aws.region1
-#   name        = "prod-instance-security-group"
-#   description = "Security group for EC2 instances in target group"
-#   vpc_id      = aws_vpc.vpc_region1.id
-
-#   # Allow inbound traffic only from ALB
-#   ingress {
-#     description     = "Allow HTTP from ALB"
-#     from_port       = 80
-#     to_port         = 80
-#     protocol        = "tcp"
-#     security_groups = [aws_security_group.alb_sg.id]
-#   }
-
-#   # Allow SSH access for management
-#   ingress {
-#     description = "Allow SSH from all"
-#     from_port   = 22
-#     to_port     = 22
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"] # Consider restricting this to your IP range
-#   }
-
-#   # Egress Rules
-#   egress {
-#     description = "Allow all egress"
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-
-#   tags = {
-#     Name    = "prod-instance-security-group"
-#     project = var.project_name
-#     region  = var.region1
-#   }
-# }
-
-
-
-# resource "aws_instance" "production_instance_node1" {
-#   provider                    = aws.region1
-#   ami                         = var.aws_ami_id_region1
-#   instance_type               = "t2.micro"
-#   associate_public_ip_address = true
-#   subnet_id                   = aws_subnet.public_subnet_region1.id
-
-#   # Security Group (optional, add an existing SG or use Terraform to create one)
-#   vpc_security_group_ids = [aws_security_group.prod_sg.id]
-
-#   # Key Pair for SSH Access
-#   key_name = aws_key_pair.key_pair_region1.key_name
-
-#   # Add a basic block device (root volume)
-#   root_block_device {
-#     volume_size = 8 # 8GB root volume
-#     volume_type = "gp3"
-#   }
-
-#   # Add Tags
-#   tags = {
-#     Name     = "production_instance_node1"
-#     project  = var.project_name
-#     env      = "prod"
-#     function = "webserver"
-#     region   = var.region1
-#   }
-# }
-
-# resource "aws_instance" "production_instance_node2" {
-#   provider                    = aws.region1
-#   ami                         = var.aws_ami_id_region1
-#   instance_type               = "t2.micro"
-#   associate_public_ip_address = true
-#   subnet_id                   = aws_subnet.public_subnet_region1_az2.id
-
-#   # Security Group (optional, add an existing SG or use Terraform to create one)
-#   vpc_security_group_ids = [aws_security_group.prod_sg.id]
-
-#   # Key Pair for SSH Access
-#   key_name = aws_key_pair.key_pair_region1.key_name
-
-#   # Add a basic block device (root volume)
-#   root_block_device {
-#     volume_size = 8 # 8GB root volume
-#     volume_type = "gp3"
-#   }
-
-#   # Add Tags
-#   tags = {
-#     Name     = "production_instance_node2"
-#     project  = var.project_name
-#     env      = "prod"
-#     function = "webserver"
-#     region   = var.region1
-#   }
-# }
-
-# # VPC for region1
-# resource "aws_vpc" "vpc_region1" {
-#   provider             = aws.region1
-#   cidr_block           = "10.0.0.0/16"
-#   enable_dns_hostnames = true
-#   enable_dns_support   = true
-#   tags = {
-#     Name    = "vpc_region1"
-#     project = var.project_name
-#     region  = var.region1
-#   }
-# }
-
-# # Public Subnet
-# resource "aws_subnet" "public_subnet_region1" {
-#   provider                = aws.region1
-#   vpc_id                  = aws_vpc.vpc_region1.id
-#   cidr_block              = "10.0.1.0/24"
-#   map_public_ip_on_launch = true
-#   availability_zone       = var.availability_zone_region1
-#   tags = {
-#     Name    = "public_subnet_region1"
-#     project = var.project_name
-#     region  = var.region1
-#   }
-# }
-
-# # Additional subnet in region1
-# resource "aws_subnet" "public_subnet_region1_az2" {
-#   provider                = aws.region1
-#   vpc_id                  = aws_vpc.vpc_region1.id
-#   cidr_block              = "10.0.2.0/24" # Different CIDR block
-#   map_public_ip_on_launch = true
-#   availability_zone       = var.availability_zone2_region1 # Different AZ
-
-#   tags = {
-#     Name    = "public_subnet_region1_az2"
-#     project = var.project_name
-#     region  = var.region1
-#   }
-# }
-
-
-# # Internet Gateway
-# resource "aws_internet_gateway" "igw_region1" {
-#   provider = aws.region1
-#   vpc_id   = aws_vpc.vpc_region1.id
-#   tags = {
-#     Name    = "igw_region1"
-#     project = var.project_name
-#     region  = var.region1
-#   }
-# }
-
-# # Route Table
-# resource "aws_route_table" "public_rt_region1" {
-#   provider = aws.region1
-#   vpc_id   = aws_vpc.vpc_region1.id
-
-#   route {
-#     cidr_block = "0.0.0.0/0"
-#     gateway_id = aws_internet_gateway.igw_region1.id
-#   }
-
-#   tags = {
-#     Name    = "public_rt_region1"
-#     project = var.project_name
-#     region  = var.region1
-#   }
-# }
-
-# # Route for Internet Access
-# # resource "aws_route" "default_route_region1" {
-# #   provider             = aws.region1
-# #   route_table_id         = aws_route_table.public_rt_region1.id
-# #   destination_cidr_block = "0.0.0.0/0"
-# #   gateway_id             = aws_internet_gateway.igw_region1.id
-# # }
-
-# # Associate Route Table with Public Subnet
-# resource "aws_route_table_association" "public_association_region1" {
-#   provider       = aws.region1
-#   subnet_id      = aws_subnet.public_subnet_region1.id
-#   route_table_id = aws_route_table.public_rt_region1.id
-# }
-
-# resource "aws_route_table_association" "public_association_region1_az2" {
-#   provider       = aws.region1
-#   subnet_id      = aws_subnet.public_subnet_region1_az2.id
-#   route_table_id = aws_route_table.public_rt_region1.id
-# }
-
-
-# terraform {
-#   backend "s3" {
-#     bucket         = "tf-state-react-jenkins"
-#     key            = "terraform/state/terraform.tfstate" # Path to state file
-#     region         = "us-east-1"
-#     dynamodb_table = "terraform-state-lock" # Optional, for state locking
-#     encrypt        = true                   # Encrypt state file at rest using AWS KMS
-#   }
-# }
-
-
-# terraform {
-#   required_providers {
-#     aws = {
-#       source  = "hashicorp/aws"
-#       version = "~> 5.0"
+#     redirect {
+#       port        = "443"
+#       protocol    = "HTTPS"
+#       status_code = "HTTP_301"
 #     }
 #   }
-# }
-
-# provider "aws" {
-#   region = var.region1
-#   alias  = "region1"
-# }
-
-# provider "aws" {
-#   region = var.region2
-#   alias  = "region2"
 # }

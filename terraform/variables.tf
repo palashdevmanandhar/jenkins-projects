@@ -68,3 +68,8 @@ variable "repo_name" {
   default     = "react-jenkins-project-repo"
   description = "description"
 }
+
+variable "my_hosted_zone" {
+  type    = string
+  default = "533267232470.realhandsonlabs.net"
+}

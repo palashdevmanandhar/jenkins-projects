@@ -14,6 +14,13 @@ resource "aws_security_group" "alb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -95,18 +102,18 @@ resource "aws_lb_target_group" "tg_region1" {
 #   port             = 80
 # }
 
-# ALB Listener
-resource "aws_lb_listener" "front_end" {
-  provider          = aws.region1
-  load_balancer_arn = aws_lb.alb_region1.arn
-  port              = "80"
-  protocol          = "HTTP"
+# ALB Listener to send traffic to target group
+# resource "aws_lb_listener" "front_end" {
+#   provider          = aws.region1
+#   load_balancer_arn = aws_lb.alb_region1.arn
+#   port              = "80"
+#   protocol          = "HTTP"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tg_region1.arn
-  }
-}
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.tg_region1.arn
+#   }
+# }
 
 resource "aws_launch_template" "prod_server_lt" {
   provider = aws.region1
@@ -191,9 +198,9 @@ resource "aws_autoscaling_group" "web_server_asg" {
   provider = aws.region1
   name     = "web-server-asg"
 
-  desired_capacity = 1
+  desired_capacity = 2
   max_size         = 3
-  min_size         = 1
+  min_size         = 2
 
   target_group_arns = [aws_lb_target_group.tg_region1.arn]
   vpc_zone_identifier = [

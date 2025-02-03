@@ -35,7 +35,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          alb asg integration complete
+          route 53 integrstion
         </a>
       </header>
     </div>
